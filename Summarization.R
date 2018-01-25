@@ -131,23 +131,39 @@ ggplot(ui.data, aes(x=Perim)) +
   facet_wrap(~overlap) +
   labs(title = "Unburned island perimeter (m) distribution by degree of persistance", x = "Perimeter length (m)", y = "Density") +
   xlim(c(0, 1000))
-
 ggplot(ui.data, aes(x=AREA)) + 
   geom_density(fill = "darkgreen", alpha = 0.2) +
   facet_wrap(~overlap) +
   labs(title = "Area (sq. m) distribution by degree of persistance", x = "Area (m)", y = "Density") +
   xlim(c(0, 20000))
-
 ggplot(ui.data, aes(x=PARA)) + 
   geom_density(fill = "darkgreen", alpha = 0.2) +
   facet_wrap(~overlap) +
   labs(title = "Perimeter-area ratio (PARA) distribution by degree of persistance", x = "PARA", y = "Density")
-
 ggplot(ui.data, aes(x=FRAC)) + 
   geom_density(fill = "darkgreen", alpha = 0.2) +
   facet_wrap(~overlap) +
   labs(title = "Fractional dimension index (FRAC) distribution by degree of persistance", x = "FRAC", y = "Density") +
   xlim(c(1,1.2))
+
+# Stacked shape plots
+ggplot(ui.data, aes(x=Perim, colour = factor(overlap))) + 
+  geom_density(position = "identity", fill = NA, size = 1) +
+  scale_x_continuous(breaks = seq(0, 1000, 250), limits=c(0, 1000)) +
+  labs(title = "Unburned island perimeter (m) distribution by degree of persistance", x = "Perimeter length (m)", y = "Density", colour = "Degree of\npersistence")
+ggplot(ui.data, aes(x=AREA, colour = factor(overlap))) + 
+  geom_density(position = "identity", fill = NA, size = 1) +
+  scale_x_continuous(breaks = seq(0, 15000, 2500), limits=c(0, 15000)) +
+  labs(title = "Unburned island perimeter (m) distribution by degree of persistance", x = "Perimeter length (m)", y = "Density", colour = "Degree of\npersistence")
+ggplot(ui.data, aes(x=PARA, colour = factor(overlap))) + 
+  geom_density(position = "identity", fill = NA, size = 1) +
+  labs(title = "Unburned island perimeter (m) distribution by degree of persistance", x = "Perimeter length (m)", y = "Density", colour = "Degree of\npersistence")
+ggplot(ui.data, aes(x=FRAC, colour = factor(overlap))) + 
+  geom_density(position = "identity", fill = NA, size = 1) +
+  scale_x_continuous(limits=c(1, 1.25)) +
+  labs(title = "Unburned island perimeter (m) distribution by degree of persistance", x = "Perimeter length (m)", y = "Density", colour = "Degree of\npersistence")
+
+
 
 #FRAC K-S test
 ks.test(ui.1$FRAC, ui.2$FRAC)
@@ -182,30 +198,21 @@ ks.test(ui.2$Perim, ui.4$Perim)
 ks.test(ui.3$Perim, ui.4$Perim) # no difference
 dunn.test(ui.data$Perim, ui.data$Unburned)
 
-#ggplot(stats.plot, aes(x=Overlap, y=PARA.mean)) + 
-#  geom_col(fill = c("#132B43", "#28547A", "#3E81B7", "#56B1F7")) +
-#  geom_errorbar(aes(ymin = PARA.mean - PARA.se, ymax = PARA.mean + PARA.se), width = .1, 
-#                position = position_dodge(.9)) +
-#  labs(title = "Perimeter-area ratio (PARA) by degree of persistance", x = "Degree of persistance (number of fires)", y = "PARA")
 
-
-colour = c("#132B43", "#28547A", "#3E81B7", "#56B1F7")
-
-#
-breaks <- 
-prop.plot.melt2 <- prop.plot.melt
-prop.plot.melt2$mask <- c(1, 0, 0, 1, 0, 0)
-ggplot(aes(y = value, x = variable, fill = factor(Overlap)), data = prop.plot.melt2) +
-  geom_bar(position = position_fill(reverse = T), stat="identity") +
-  #coord_cartesian(ylim = c(0.80, 1)) +
-  labs(title = "Distribution of persistent unburned islands by degree of persistence", x = "", y = "Proportion") +
-  scale_fill_manual(values=c("#78c679", "#31a354", "#006837")) +
-  guides(fill=guide_legend(title="Degree of\npersistence")) +
-  facet_grid(mask~., scales = "free") +
-  expand_limits()
-
-#
+# Stacked shape plots
 ggplot(ui.data, aes(x=Perim, colour = factor(overlap))) + 
   geom_density(position = "identity", fill = NA, size = 1) +
   scale_x_continuous(breaks = seq(0, 1000, 250), limits=c(0, 1000)) +
   labs(title = "Unburned island perimeter (m) distribution by degree of persistance", x = "Perimeter length (m)", y = "Density", colour = "Degree of\npersistence")
+ggplot(ui.data, aes(x=AREA, colour = factor(overlap))) + 
+  geom_density(position = "identity", fill = NA, size = 1) +
+  scale_x_continuous(breaks = seq(0, 15000, 2500), limits=c(0, 15000)) +
+  labs(title = "Unburned island perimeter (m) distribution by degree of persistance", x = "Perimeter length (m)", y = "Density", colour = "Degree of\npersistence")
+ggplot(ui.data, aes(x=PARA, colour = factor(overlap))) + 
+  geom_density(position = "identity", fill = NA, size = 1) +
+  labs(title = "Unburned island perimeter (m) distribution by degree of persistance", x = "Perimeter length (m)", y = "Density", colour = "Degree of\npersistence")
+ggplot(ui.data, aes(x=FRAC, colour = factor(overlap))) + 
+  geom_density(position = "identity", fill = NA, size = 1) +
+  scale_x_continuous(limits=c(1, 1.25)) +
+  labs(title = "Unburned island perimeter (m) distribution by degree of persistance", x = "Perimeter length (m)", y = "Density", colour = "Degree of\npersistence")
+
