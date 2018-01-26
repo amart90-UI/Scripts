@@ -166,38 +166,48 @@ ggplot(ui.data, aes(x=FRAC, colour = factor(overlap))) +
 
 
 #FRAC K-S test
-ks.test(ui.1$FRAC, ui.2$FRAC)
-ks.test(ui.1$FRAC, ui.3$FRAC)
-ks.test(ui.1$FRAC, ui.4$FRAC)
-ks.test(ui.2$FRAC, ui.3$FRAC)
-ks.test(ui.2$FRAC, ui.4$FRAC)
-ks.test(ui.3$FRAC, ui.4$FRAC) # no difference
+a <- round(c(ks.test(ui.1$FRAC, ui.2$FRAC)$p.value,
+       ks.test(ui.1$FRAC, ui.3$FRAC)$p.value,
+       ks.test(ui.1$FRAC, ui.4$FRAC)$p.value,
+       ks.test(ui.2$FRAC, ui.3$FRAC)$p.value,
+       ks.test(ui.2$FRAC, ui.4$FRAC)$p.value,
+       ks.test(ui.3$FRAC, ui.4$FRAC)$p.value), digits = 4)
+b <- c("-", a[1:3], "-", "-", a[4:5], "-", "-", "-", a[6])
+FRAC.summary <- data.frame(matrix(b, ncol = 4, nrow = 3, byrow = T))
+colnames(FRAC.summary) <- c(1:4)
 
 # PARA K-S test
-ks.test(ui.1$PARA, ui.2$PARA)
-ks.test(ui.1$PARA, ui.3$PARA)
-ks.test(ui.1$PARA, ui.4$PARA)
-ks.test(ui.2$PARA, ui.3$PARA)
-ks.test(ui.2$PARA, ui.4$PARA)
-ks.test(ui.3$PARA, ui.4$PARA) # no difference
+a <- round(c(ks.test(ui.1$PARA, ui.2$PARA)$p.value,
+             ks.test(ui.1$PARA, ui.3$PARA)$p.value,
+             ks.test(ui.1$PARA, ui.4$PARA)$p.value,
+             ks.test(ui.2$PARA, ui.3$PARA)$p.value,
+             ks.test(ui.2$PARA, ui.4$PARA)$p.value,
+             ks.test(ui.3$PARA, ui.4$PARA)$p.value), digits = 4)
+b <- c("-", a[1:3], "-", "-", a[4:5], "-", "-", "-", a[6])
+PARA.summary <- data.frame(matrix(b, ncol = 4, nrow = 3, byrow = T))
+colnames(PARA.summary) <- c(1:4)
 
 # Area K-S test
-ks.test(ui.1$AREA, ui.2$AREA)
-ks.test(ui.1$AREA, ui.3$AREA)
-ks.test(ui.1$AREA, ui.4$AREA)
-ks.test(ui.2$AREA, ui.3$AREA)
-ks.test(ui.2$AREA, ui.4$AREA)
-ks.test(ui.3$AREA, ui.4$AREA) # no difference
+a <- round(c(ks.test(ui.1$AREA, ui.2$AREA)$p.value,
+             ks.test(ui.1$AREA, ui.3$AREA)$p.value,
+             ks.test(ui.1$AREA, ui.4$AREA)$p.value,
+             ks.test(ui.2$AREA, ui.3$AREA)$p.value,
+             ks.test(ui.2$AREA, ui.4$AREA)$p.value,
+             ks.test(ui.3$AREA, ui.4$AREA)$p.value), digits = 4)
+b <- c("-", a[1:3], "-", "-", a[4:5], "-", "-", "-", a[6])
+AREA.summary <- data.frame(matrix(b, ncol = 4, nrow = 3, byrow = T))
+colnames(AREA.summary) <- c(1:4)
 
 # Perim K-S test
-ks.test(ui.1$Perim, ui.2$Perim)
-ks.test(ui.1$Perim, ui.3$Perim)
-ks.test(ui.1$Perim, ui.4$Perim)
-ks.test(ui.2$Perim, ui.3$Perim)
-ks.test(ui.2$Perim, ui.4$Perim)
-ks.test(ui.3$Perim, ui.4$Perim) # no difference
-dunn.test(ui.data$Perim, ui.data$Unburned)
-
+a <- round(c(ks.test(ui.1$Perim, ui.2$Perim)$p.value,
+             ks.test(ui.1$Perim, ui.3$Perim)$p.value,
+             ks.test(ui.1$Perim, ui.4$Perim)$p.value,
+             ks.test(ui.2$Perim, ui.3$Perim)$p.value,
+             ks.test(ui.2$Perim, ui.4$Perim)$p.value,
+             ks.test(ui.3$Perim, ui.4$Perim)$p.value), digits = 4)
+b <- c("-", a[1:3], "-", "-", a[4:5], "-", "-", "-", a[6])
+Perim.summary <- data.frame(matrix(b, ncol = 4, nrow = 3, byrow = T))
+colnames(Perim.summary) <- c(1:4)
 
 # Stacked shape plots
 ggplot(ui.data, aes(x=Perim, colour = factor(overlap))) + 
