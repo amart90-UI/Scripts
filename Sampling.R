@@ -21,7 +21,7 @@ LndCvr  <- raster("Intermediates/LndCvr_mask2.tif")
 load("Intermediates/nonNA.RData")
 
 # Prep and stack rasters
-topo <- stack(LndCvr, TPI, TRI, rough, slope, cos.asp, TRASP, SWASP, SCOSA)
+#topo <- stack(LndCvr, TPI, TRI, rough, slope, cos.asp, TRASP, SWASP, SCOSA)
 #topo.mask <- mask(topo, sample.comb)
 #input.stack <- stack(sample.comb, topo.mask)
 input.stack <- stack(sample.comb, LndCvr, TPI, TPI_90, TRI, TRI_90, rough, rough_90, slope, cos.asp, TRASP, SWASP, SCOSA)
@@ -30,10 +30,10 @@ input.stack <- stack(sample.comb, LndCvr, TPI, TPI_90, TRI, TRI_90, rough, rough
 #nonNa <- !is.na(as.numeric(sample.comb))
 valuetable <- data.frame(input.stack[nonNa])
 colnames(valuetable) <- c("Unburned", "LndCvr", "TPI", "TPI_90", "TRI", "TRI_90", "rough", "rough_90", "slope", "cos.asp", "TRASP", "SWASP", "SCOSA")
-valuetable <- na.exclude(valuetable)
 valuetable$Unburned[valuetable$Unburned == 2] <- 0
 valuetable$Unburned[valuetable$Unburned == 5] <- 1
 write.csv(valuetable, "valuetable.csv", row.names = F)
+valuetable <- na.exclude(valuetable)
 
 # Random Forest Model
 rfm <- randomForest(Unburned~., data = valuetable3, importance = T)
