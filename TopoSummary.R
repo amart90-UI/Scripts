@@ -29,88 +29,90 @@ Range <- sampl.data[sampl.data[, "Cvr"] == "Range",]
 sampl.data <- rbind(Forest, Range)
 sampl.data$Cvr <- as.factor(sampl.data$Cvr)
 
-# Kernel density estimation plots
-med <- ddply(sampl.data, .(Unburned, Cvr), summarise, # calculate medians
+# Group by unburned and cover type
+sampl.data$Group[sampl.data$Unburned == 1] <- "Unburned"
+sampl.data$Group[sampl.data$Unburned == 0] <- "Burned"
+sampl.data$Group <- paste(sampl.data$Group, sampl.data$Cvr)
+
+# Median values by group
+med <- ddply(sampl.data2, "Group", summarise, # calculate medians
              TPI.med = median(TPI), TPI90.med = median(TPI_90), TRI.med = median(TRI), TRI90.med = median(TRI_90),
              rough.med = median(rough), rough90.med = median(rough_90), slope.med = median(slope), cosasp.med = median(cos.asp),
              TRASP.med = median(TRASP), SWASP.med = median(SWASP), SCOSA.med = median(SCOSA))
 
-ggplot(sampl.data, aes(x=TPI, colour=Unburned)) + 
+# Kernel density estimation plots
+med <- ddply(sampl.data2, "Group", summarise, # calculate medians
+              TPI.med = median(TPI), TPI90.med = median(TPI_90), TRI.med = median(TRI), TRI90.med = median(TRI_90),
+              rough.med = median(rough), rough90.med = median(rough_90), slope.med = median(slope), cosasp.med = median(cos.asp),
+              TRASP.med = median(TRASP), SWASP.med = median(SWASP), SCOSA.med = median(SCOSA))
+col <- c("#D55E00", "#0072B2", "#E69F00", "#56B4E9")
+
+ggplot(sampl.data, aes(x=TPI, colour=Group)) + 
   geom_density(size = 1) +
-  geom_vline(data = med, aes(xintercept = TPI.med, colour=Unburned), linetype = "dashed") +
-  facet_wrap(~Cvr)+
+  geom_vline(data = med, aes(xintercept = TPI.med, colour=Group), linetype = "dashed") +
   labs(title = "Topographic position index (TPI; 3x3 widow) distribution by land cover", x = "TPI", y = "Density") +
-  scale_color_manual(labels = c("Burned", "Unburned"), values = c("red", "cyan3"))
+  scale_color_manual("Dashed line \nas median", values = col)
 
-ggplot(sampl.data, aes(x=TPI_90, colour=Unburned)) + 
+ggplot(sampl.data, aes(x=TPI_90, colour=Group)) + 
   geom_density(size = 1) +
-  geom_vline(data = med, aes(xintercept = TPI90.med, colour=Unburned), linetype = "dashed") +
-  facet_wrap(~Cvr)+
+  geom_vline(data = med, aes(xintercept = TPI90.med, colour=Group), linetype = "dashed") +
   labs(title = "Topographic position index (TPI; 7x7 widow) distribution by land cover", x = "TPI", y = "Density") +
-  scale_color_manual(labels = c("Burned", "Unburned"), values = c("red", "cyan3"))
+  scale_color_manual("Dashed line \nas median", values = col)
 
-ggplot(sampl.data, aes(x=TRI, colour=Unburned)) + 
+ggplot(sampl.data, aes(x=TRI, colour=Group)) + 
   geom_density(size = 1) +
-  geom_vline(data = med, aes(xintercept = TRI.med, colour=Unburned), linetype = "dashed") +
-  facet_wrap(~Cvr)+
+  geom_vline(data = med, aes(xintercept = TRI.med, colour=Group), linetype = "dashed") +
   labs(title = "Terrain roughness index (TRI; 3x3 widow) distribution by land cover", x = "TRI", y = "Density") +
-  scale_color_manual(labels = c("Burned", "Unburned"), values = c("red", "cyan3"))
+  scale_color_manual("Dashed line \nas median", values = col)
 
-ggplot(sampl.data, aes(x=TRI_90, colour=Unburned)) + 
+ggplot(sampl.data, aes(x=TRI_90, colour=Group)) + 
   geom_density(size = 1) +
-  geom_vline(data = med, aes(xintercept = TRI90.med, colour=Unburned), linetype = "dashed") +
-  facet_wrap(~Cvr)+
+  geom_vline(data = med, aes(xintercept = TRI90.med, colour=Group), linetype = "dashed") +
   labs(title = "Terrain roughness index (TRI; 7x7 widow) distribution by land cover", x = "TRI", y = "Density") +
-  scale_color_manual(labels = c("Burned", "Unburned"), values = c("red", "cyan3"))
+  scale_color_manual("Dashed line \nas median", values = col)
 
-ggplot(sampl.data, aes(x=rough, colour=Unburned)) + 
+ggplot(sampl.data, aes(x=rough, colour=Group)) + 
   geom_density(size = 1) +
-  geom_vline(data = med, aes(xintercept = rough.med, colour=Unburned), linetype = "dashed") +
-  facet_wrap(~Cvr)+
+  geom_vline(data = med, aes(xintercept = rough.med, colour=Group), linetype = "dashed") +
   labs(title = "Topographic roughness (3x3 window) distribution by land cover", x = "TRI", y = "Density") +
-  scale_color_manual(labels = c("Burned", "Unburned"), values = c("red", "cyan3"))
+  scale_color_manual("Dashed line \nas median", values = col)
 
-ggplot(sampl.data, aes(x=rough_90, colour=Unburned)) + 
+ggplot(sampl.data, aes(x=rough_90, colour=Group)) + 
   geom_density(size = 1) +
-  geom_vline(data = med, aes(xintercept = rough90.med, colour=Unburned), linetype = "dashed") +
-  facet_wrap(~Cvr)+
+  geom_vline(data = med, aes(xintercept = rough90.med, colour=Group), linetype = "dashed") +
   labs(title = "Topographic roughness (7x7 window) distribution by land cover", x = "TRI", y = "Density") +
-  scale_color_manual(labels = c("Burned", "Unburned"), values = c("red", "cyan3"))
+  scale_color_manual("Dashed line \nas median", values = col)
 
-ggplot(sampl.data, aes(x=slope, colour=Unburned)) + 
+ggplot(sampl.data, aes(x=slope, colour=Group)) + 
   geom_density(size = 1) +
-  geom_vline(data = med, aes(xintercept = slope.med, colour=Unburned), linetype = "dashed") +
-  facet_wrap(~Cvr)+
+  geom_vline(data = med, aes(xintercept = slope.med, colour=Group), linetype = "dashed") +
   labs(title = "Slope distribution by land cover", x = "Slope (°)", y = "Density") +
-  scale_color_manual(labels = c("Burned", "Unburned"), values = c("red", "cyan3"))
+  scale_color_manual("Dashed line \nas median", values = col)
 
-ggplot(sampl.data, aes(x=cos.asp, colour=Unburned)) + 
+ggplot(sampl.data, aes(x=cos.asp, colour=Group)) + 
   geom_density(size = 1) +
-  geom_vline(data = med, aes(xintercept = cosasp.med, colour=Unburned), linetype = "dashed") +
-  facet_wrap(~Cvr)+
+  geom_vline(data = med, aes(xintercept = cosasp.med, colour=Group), linetype = "dashed") +
   labs(title = "Cosine of the aspect distribution by land cover", x = "Cosine of the Aspect", y = "Density") +
-  scale_color_manual(labels = c("Burned", "Unburned"), values = c("red", "cyan3"))
+  scale_color_manual("Dashed line \nas median", values = col)
 
-ggplot(sampl.data, aes(x=TRASP, colour=Unburned)) + 
+ggplot(sampl.data, aes(x=TRASP, colour=Group)) + 
   geom_density(size = 1) +
-  geom_vline(data = med, aes(xintercept = TRASP.med, colour=Unburned), linetype = "dashed") +
-  facet_wrap(~Cvr)+
+  geom_vline(data = med, aes(xintercept = TRASP.med, colour=Group), linetype = "dashed") +
   labs(title = "Transformed aspect (TRASP) distribution by land cover", x = "TRASP", y = "Density") +
-  scale_color_manual(labels = c("Burned", "Unburned"), values = c("red", "cyan3"))
+  scale_color_manual("Dashed line \nas median", values = col)
 
 ggplot(sampl.data, aes(x=SWASP, colour=Unburned)) + 
   geom_density(size = 1) +
   geom_vline(data = med, aes(xintercept = SWASP.med, colour=Unburned), linetype = "dashed") +
   facet_wrap(~Cvr)+
   labs(title = "Southwest aspect (SWASP) distribution by land cover", x = "SWASP", y = "Density") +
-  scale_color_manual(labels = c("Burned", "Unburned"), values = c("red", "cyan3"))
+  scale_color_manual("Dashed line \nas median", values = col)
 
-ggplot(sampl.data, aes(x=SCOSA, colour=Unburned)) + 
+ggplot(sampl.data, aes(x=SCOSA, colour=Group)) + 
   geom_density(size = 1) +
-  geom_vline(data = med, aes(xintercept = SCOSA.med, colour=Unburned), linetype = "dashed") +
-  facet_wrap(~Cvr)+
+  geom_vline(data = med, aes(xintercept = SCOSA.med, colour=Group), linetype = "dashed") +
   labs(title = "Slope cosine aspect interaction (SCOSA) distribution by land cover", x = "SCOSA", y = "Density") +
-  scale_color_manual(labels = c("Burned", "Unburned"), values = c("red", "cyan3"))
+  scale_color_manual("Dashed line \nas median", values = col)
 
 #
 TopoSummary <- data.frame(Variable = c("TPI", "TPI_90", "TRI", "TRI_90", "rough", "rough_90", "slope", "cos.asp", "TRASP", "SWASP", "SCOSA"))
@@ -229,28 +231,24 @@ TopoSummary$`K-W.Forest.vs.Range` <- c(
   kruskal.test(SWASP ~ Cvr, data = sampl.data)$p.value,
   kruskal.test(SCOSA ~ Cvr, data = sampl.data)$p.value)
 
-
-
 TopoSummary[,-1] <- round(TopoSummary[,-1], digits = 4)
-# CDF
-ggplot(sampl.data, aes(x=slope, colour=Unburned)) + 
-  stat_ecdf() +
-  facet_wrap(~Cvr)+
-  labs(title = "Slope cosine aspect interaction (SCOSA) distribution by land cover", x = "SCOSA", y = "Density") +
-  scale_color_manual(labels = c("Burned", "Unburned"), values = c("red", "cyan3"))
 
-#
-ggplot(sampl.data, aes(x=slope, colour=Unburned)) + 
+
+# Plotting on a single axis
+sampl.data <- sampl.data
+
+sampl.data$Group[sampl.data$Unburned == 1] <- "Unburned"
+sampl.data$Group[sampl.data$Unburned == 0] <- "Burned"
+sampl.data$Group <- paste(sampl.data$Group, sampl.data$Cvr)
+
+med <- ddply(sampl.data2, "Group", summarise, # calculate medians
+             TPI.med = median(TPI), TPI90.med = median(TPI_90), TRI.med = median(TRI), TRI90.med = median(TRI_90),
+             rough.med = median(rough), rough90.med = median(rough_90), slope.med = median(slope), cosasp.med = median(cos.asp),
+             TRASP.med = median(TRASP), SWASP.med = median(SWASP), SCOSA.med = median(SCOSA))
+
+
+ggplot(sampl.data2, aes(x=cos.asp, colour=Group)) + 
   geom_density(size = 1) +
-  geom_vline(data = s, aes(xintercept = slope.mean, colour=Unburned), linetype = "dashed") +
-  facet_wrap(~Cvr)+
-  labs(title = "Slope distribution by land cover", x = "Slope (°)", y = "Density", colour = "Dashed line \nat median") +
-  scale_color_manual(labels = c("Burned", "Unburned"), values = c("red", "cyan3"))
-
-
-ggplot(pub.r, aes(x=TRI_90)) + 
-  geom_density(size = 1)
-  geom_vline(data = med, aes(xintercept = TRI90.med, colour=Unburned), linetype = "dashed") +
-  facet_wrap(~Cvr)+
-  labs(title = "Terrain roughness index (TRI; 7x7 widow) distribution by land cover", x = "TRI", y = "Density") +
-  scale_color_manual(labels = c("Burned", "Unburned"), values = c("red", "cyan3"))
+  geom_vline(data = med, aes(xintercept = cosasp.med, colour=Group), linetype = "dashed") +
+  labs(title = "Cosine of the aspect distribution by land cover", x = "Cosine of the Aspect", y = "Density") +
+  scale_color_manual("Dashed line \nas median", values = col)
