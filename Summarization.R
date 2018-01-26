@@ -4,8 +4,6 @@ library(raster)
 library(rgdal)
 library(reshape2)
 library(ggplot2)
-library(plotrix)
-
 
 # Load data
 fire <- readOGR("Data/perims_dissolve.shp")
@@ -85,7 +83,7 @@ stats.plot <- data.frame(Overlap = c(1,2,3,4), cbind(count, count.prop.unburned,
             area.prop.persist, area.min, area.max, area.mean, area.median, area.sd, area.se, FRAC.mean, 
             FRAC.sd, FRAC.se, FRAC.AreaWtMean, PARA.mean, PARA.sd, PARA.se, PARA.AreaWtMean))
 
-# Proportional Plots
+# Proportional Plots - this one might not be great
 prop.plot <- stats.plot[-1, c(1,4,7)]
 colnames(prop.plot) <- c("Overlap", "By count", "By area")
 prop.plot.melt <- melt(prop.plot, id.vars = "Overlap")
@@ -114,7 +112,7 @@ ggplot(aes(y = value, x = variable, fill = Overlap), data = count.plot.melt) +
 # Area proportion
 area.plot <- stats.plot[, c(1,5:7)]
 area.plot <- rbind(c("Burned", 1- sum(area.plot$area.prop.fire), NA, NA), area.plot)
-colnames(area.plot) <- c("Overlap", "Within fire perimeter", "Among all unburned", "Among persistent unburned")
+colnames(area.plot) <- c("Overlap", "Within fire perimeter", "Among all unburned", "Among persistent unburned only")
 area.plot.melt <- melt(area.plot, id.vars =  "Overlap")
 area.plot.melt$value <- as.numeric(area.plot.melt$value)
 area.plot.melt$Overlap <- factor(area.plot.melt$Overlap, levels = c("Burned", "1", "2", "3", "4"))
@@ -125,7 +123,7 @@ ggplot(aes(y = value, x = variable, fill = Overlap), data = area.plot.melt) +
   labs(title = "Distribution of unburned islands (by area) by degree of persistence", x = "", y = "Proportion by area") +
   scale_fill_manual(values=c("#ffffcc", "#c2e699", "#78c679", "#31a354", "#006837"))
 
-# Shape Plots
+# Faceted shape Plots - maybe not these ones
 ggplot(ui.data, aes(x=Perim)) + 
   geom_density(fill = "darkgreen", alpha = 0.2) +
   facet_wrap(~overlap) +
@@ -208,21 +206,4 @@ a <- round(c(ks.test(ui.1$Perim, ui.2$Perim)$p.value,
 b <- c("-", a[1:3], "-", "-", a[4:5], "-", "-", "-", a[6])
 Perim.summary <- data.frame(matrix(b, ncol = 4, nrow = 3, byrow = T))
 colnames(Perim.summary) <- c(1:4)
-
-# Stacked shape plots
-ggplot(ui.data, aes(x=Perim, colour = factor(overlap))) + 
-  geom_density(position = "identity", fill = NA, size = 1) +
-  scale_x_continuous(breaks = seq(0, 1000, 250), limits=c(0, 1000)) +
-  labs(title = "Unburned island perimeter (m) distribution by degree of persistance", x = "Perimeter length (m)", y = "Density", colour = "Degree of\npersistence")
-ggplot(ui.data, aes(x=AREA, colour = factor(overlap))) + 
-  geom_density(position = "identity", fill = NA, size = 1) +
-  scale_x_continuous(breaks = seq(0, 15000, 2500), limits=c(0, 15000)) +
-  labs(title = "Unburned island perimeter (m) distribution by degree of persistance", x = "Perimeter length (m)", y = "Density", colour = "Degree of\npersistence")
-ggplot(ui.data, aes(x=PARA, colour = factor(overlap))) + 
-  geom_density(position = "identity", fill = NA, size = 1) +
-  labs(title = "Unburned island perimeter (m) distribution by degree of persistance", x = "Perimeter length (m)", y = "Density", colour = "Degree of\npersistence")
-ggplot(ui.data, aes(x=FRAC, colour = factor(overlap))) + 
-  geom_density(position = "identity", fill = NA, size = 1) +
-  scale_x_continuous(limits=c(1, 1.25)) +
-  labs(title = "Unburned island perimeter (m) distribution by degree of persistance", x = "Perimeter length (m)", y = "Density", colour = "Degree of\npersistence")
 
