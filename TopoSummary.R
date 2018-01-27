@@ -35,16 +35,12 @@ sampl.data$Group[sampl.data$Unburned == 0] <- "Burned"
 sampl.data$Group <- paste(sampl.data$Group, sampl.data$Cvr)
 
 # Median values by group
-med <- ddply(sampl.data2, "Group", summarise, # calculate medians
+med <- ddply(sampl.data, "Group", summarise, # calculate medians
              TPI.med = median(TPI), TPI90.med = median(TPI_90), TRI.med = median(TRI), TRI90.med = median(TRI_90),
              rough.med = median(rough), rough90.med = median(rough_90), slope.med = median(slope), cosasp.med = median(cos.asp),
              TRASP.med = median(TRASP), SWASP.med = median(SWASP), SCOSA.med = median(SCOSA))
 
 # Kernel density estimation plots
-med <- ddply(sampl.data2, "Group", summarise, # calculate medians
-              TPI.med = median(TPI), TPI90.med = median(TPI_90), TRI.med = median(TRI), TRI90.med = median(TRI_90),
-              rough.med = median(rough), rough90.med = median(rough_90), slope.med = median(slope), cosasp.med = median(cos.asp),
-              TRASP.med = median(TRASP), SWASP.med = median(SWASP), SCOSA.med = median(SCOSA))
 col <- c("#D55E00", "#0072B2", "#E69F00", "#56B4E9")
 
 ggplot(sampl.data, aes(x=TPI, colour=Group)) + 
@@ -101,10 +97,9 @@ ggplot(sampl.data, aes(x=TRASP, colour=Group)) +
   labs(title = "Transformed aspect (TRASP) distribution by land cover", x = "TRASP", y = "Density") +
   scale_color_manual("Dashed line \nas median", values = col)
 
-ggplot(sampl.data, aes(x=SWASP, colour=Unburned)) + 
+ggplot(sampl.data, aes(x=SWASP, colour=Group)) + 
   geom_density(size = 1) +
-  geom_vline(data = med, aes(xintercept = SWASP.med, colour=Unburned), linetype = "dashed") +
-  facet_wrap(~Cvr)+
+  geom_vline(data = med, aes(xintercept = SWASP.med, colour=Group), linetype = "dashed") +
   labs(title = "Southwest aspect (SWASP) distribution by land cover", x = "SWASP", y = "Density") +
   scale_color_manual("Dashed line \nas median", values = col)
 
@@ -114,7 +109,7 @@ ggplot(sampl.data, aes(x=SCOSA, colour=Group)) +
   labs(title = "Slope cosine aspect interaction (SCOSA) distribution by land cover", x = "SCOSA", y = "Density") +
   scale_color_manual("Dashed line \nas median", values = col)
 
-#
+# Build data frames
 TopoSummary <- data.frame(Variable = c("TPI", "TPI_90", "TRI", "TRI_90", "rough", "rough_90", "slope", "cos.asp", "TRASP", "SWASP", "SCOSA"))
 
 # K-S Tests
@@ -233,22 +228,3 @@ TopoSummary$`K-W.Forest.vs.Range` <- c(
 
 TopoSummary[,-1] <- round(TopoSummary[,-1], digits = 4)
 
-
-# Plotting on a single axis
-sampl.data <- sampl.data
-
-sampl.data$Group[sampl.data$Unburned == 1] <- "Unburned"
-sampl.data$Group[sampl.data$Unburned == 0] <- "Burned"
-sampl.data$Group <- paste(sampl.data$Group, sampl.data$Cvr)
-
-med <- ddply(sampl.data2, "Group", summarise, # calculate medians
-             TPI.med = median(TPI), TPI90.med = median(TPI_90), TRI.med = median(TRI), TRI90.med = median(TRI_90),
-             rough.med = median(rough), rough90.med = median(rough_90), slope.med = median(slope), cosasp.med = median(cos.asp),
-             TRASP.med = median(TRASP), SWASP.med = median(SWASP), SCOSA.med = median(SCOSA))
-
-
-ggplot(sampl.data2, aes(x=cos.asp, colour=Group)) + 
-  geom_density(size = 1) +
-  geom_vline(data = med, aes(xintercept = cosasp.med, colour=Group), linetype = "dashed") +
-  labs(title = "Cosine of the aspect distribution by land cover", x = "Cosine of the Aspect", y = "Density") +
-  scale_color_manual("Dashed line \nas median", values = col)
