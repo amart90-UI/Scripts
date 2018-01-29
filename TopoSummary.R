@@ -109,6 +109,13 @@ ggplot(sampl.data, aes(x=SCOSA, colour=Group)) +
   labs(title = "Slope cosine aspect interaction (SCOSA) distribution by land cover", x = "SCOSA", y = "Density") +
   scale_color_manual("Dashed line \nas median", values = col)
 
+# Example of faceted topo density plot
+ggplot(sampl.data, aes(x=SCOSA, colour=Unburned)) + 
+  geom_density(size = 1) +
+  facet_wrap(~Cvr)+
+  labs(title = "Terrain roughness index (TRI; 7x7 widow) distribution by land cover", x = "TRI", y = "Density") +
+  scale_color_manual(labels = c("Burned", "Unburned"), values = c("red", "cyan3"))
+
 # Build data frames
 TopoSummary <- data.frame(Variable = c("TPI", "TPI_90", "TRI", "TRI_90", "rough", "rough_90", "slope", "cos.asp", "TRASP", "SWASP", "SCOSA"))
 
