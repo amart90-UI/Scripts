@@ -18,11 +18,11 @@ TRI <- terrain(dem, opt="TRI", filename = "Intermediates/Variables/TRI.tif") #To
 rough <- terrain(dem, opt="roughness", filename = "Intermediates/Variables/rough.tif") #Topographic Roughness
 slope <- terrain(dem, opt="slope", unit="degrees", filename = "Intermediates/Variables/slope.tif")
 aspect <- terrain(dem, opt="aspect", unit="degrees", filename = "Intermediates/Variables/aspect.tif")
-cos.asp <- cos(aspect)
+cos.asp <- cos(aspect * pi/180)
 writeRaster(cos.asp, "Intermediates/Variables/CosAsp", "GTiff", overwrite = T)
-TRASP <- (-1 * cos(aspect - 30) + 1)/2 #Transformed aspect: Roberts & Cooper, 1989
+TRASP <- (-1 * cos((aspect - 30) * pi/180) + 1)/2 #Transformed aspect: Roberts & Cooper, 1989
 writeRaster(TRASP, "Intermediates/Variables/TRASP", "GTiff", overwrite = T)
-SWASP <- cos(45 - aspect) + 1 #Southwest aspect: Ohmann & Spies, 1998
+SWASP <- cos((45 - aspect) * pi/180) + 1 #Southwest aspect: Ohmann & Spies, 1998
 writeRaster(SWASP, "Intermediates/Variables/SWASP", "GTiff", overwrite = T)
 SCOSA <- slope * cos.asp #Slope cosine aspect interaction: Stage, 1976
 writeRaster(SCOSA, "Intermediates/Variables/SCOSA", "GTiff", overwrite = T)
