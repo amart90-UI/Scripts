@@ -1,7 +1,6 @@
 # Setup
 setwd("U:/Refugia/Persistance/")
 library(raster)
-library(rgdal)
 
 # Load data
 sample.comb <- raster("Intermediates/SamplRas.tif")
@@ -34,28 +33,3 @@ valuetable$Unburned[valuetable$Unburned == 2] <- 0
 valuetable$Unburned[valuetable$Unburned == 5] <- 1
 write.csv(valuetable, "valuetable.csv", row.names = F)
 valuetable <- na.exclude(valuetable)
-
-# Random Forest Model
-rfm <- randomForest(Unburned~., data = valuetable3, importance = T)
-save(rfm, "rfm.RData")
-varImpPlot(rfm)
-
-
-writeRaster(sample.comb, "sample_comb", "GTiff")
-save(nonNa, file = "Intermediates/nonNA.RData")
-save(topo.mask, file = "Intermediates/topo_mask.RData")
-write.csv(valuetable, "valuetable.csv", row.names = F)
-
-
-#
-colnames(valuetable3) <- c("Unburned", "TPI", "TRI", "rough", "slope", "cos.asp", "TRASP", "SWASP", "SCOSA")
-valuetable3 <- na.exclude(valuetable3)
-valuetable3$Unburned[valuetable3$Unburned == 2] <- 0
-valuetable3$Unburned[valuetable3$Unburned == 5] <- 1
-
-
-#
-valuetable <- read.csv("valuetable.csv")
-v <- na.exclude(valuetable)
-valuetable[,9] <- LndCvr[nonNa]
-v <- LndCvr[nonNa]

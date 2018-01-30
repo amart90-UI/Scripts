@@ -63,6 +63,7 @@ shape.stats$PARA.AreaWtMean <- shape.stats$PARA.AreaWtMean / area.stats$total
 
 # Construct dataframe
 stats <- data.frame(cbind(prop.stats, area.stats[,-1], shape.stats[,-1]))
+stats$overlap <- factor(stats$overlap)
 #write.csv(stats, "Persitsent_stats.csv")
 #read.csv("Persitsent_stats.csv")
 
@@ -71,11 +72,10 @@ prop.plot <- stats[-1, c(1,4,7)]
 colnames(prop.plot) <- c("Overlap", "By count", "By area")
 prop.plot.melt <- melt(prop.plot, id.vars = "Overlap")
 
-ggplot(aes(y = value, x = variable, fill = factor(Overlap)), data = prop.plot.melt) +
+ggplot(aes(y = value, x = variable, fill = Overlap), data = prop.plot.melt) +
   geom_bar(position = position_fill(reverse = T), stat="identity") +
-  coord_cartesian(ylim = c(0.95, 1)) +
+  coord_cartesian(ylim = c(0, 1)) +
   labs(title = "Distribution of persistent unburned islands by degree of persistence", x = "", y = "Proportion") +
-  scale_fill_manual(values=c("#78c679", "#31a354", "#006837")) +
   guides(fill=guide_legend(title="Degree of\npersistence"))
 
 # Count proportion
@@ -138,7 +138,8 @@ ggplot(ui.data, aes(x=AREA, colour = factor(overlap))) +
   geom_density(position = "identity", fill = NA, size = 1) +
   geom_vline(data = med, aes(xintercept = AREA.med, colour=overlap), linetype = "dashed") +
   scale_x_continuous(breaks = seq(0, 15000, 2500), limits=c(0, 15000)) +
-  labs(title = "Unburned island area (sq. m) distribution by degree of persistance", x = "Area (sq. m)", y = "Density", colour = "Degree of\npersistence")
+  labs(title = expression(paste("Unburned island area (", m^2, ") distribution by degree of persistance")), 
+       x = expression(paste("Area (", m^2, ")")), y = "Density", colour = "Degree of\npersistence")
 ggplot(ui.data, aes(x=PARA, colour = factor(overlap))) + 
   geom_density(position = "identity", fill = NA, size = 1) +
   geom_vline(data = med, aes(xintercept = PARA.med, colour=overlap), linetype = "dashed") +
@@ -155,37 +156,45 @@ ui.2 <- ui.data[ui.data$overlap == 2,]
 ui.3 <- ui.data[ui.data$overlap == 3,]
 ui.4 <- ui.data[ui.data$overlap == 4,]
 
-#FRAC K-S test
-a <- round(c(ks.test(ui.1$FRAC, ui.2$FRAC)$p.value,
-       ks.test(ui.1$FRAC, ui.3$FRAC)$p.value,
-       ks.test(ui.1$FRAC, ui.4$FRAC)$p.value,
-       ks.test(ui.2$FRAC, ui.3$FRAC)$p.value,
-       ks.test(ui.2$FRAC, ui.4$FRAC)$p.value,
-       ks.test(ui.3$FRAC, ui.4$FRAC)$p.value), digits = 4)
-b <- c("-", a[1:3], "-", "-", a[4:5], "-", "-", "-", a[6])
-FRAC.summary <- data.frame(matrix(b, ncol = 4, nrow = 3, byrow = T))
-colnames(FRAC.summary) <- c(1:4)
+# K-S test
+Area.ks <- round(c(ks.test(ui.1$AREA, ui.2$AREA)$p.value,
+                   ks.test(ui.1$AREA, ui.3$AREA)$p.value,
+                   ks.test(ui.1$AREA, ui.4$AREA)$p.value,
+                   ks.test(ui.2$AREA, ui.3$AREA)$p.value,
+                   ks.test(ui.2$AREA, ui.4$AREA)$p.value,
+                   ks.test(ui.3$AREA, ui.4$AREA)$p.value), digits = 4)
+PARA.ks <- round(c(ks.test(ui.1$PARA, ui.2$PARA)$p.value,
+                   ks.test(ui.1$PARA, ui.3$PARA)$p.value,
+                   ks.test(ui.1$PARA, ui.4$PARA)$p.value,
+                   ks.test(ui.2$PARA, ui.3$PARA)$p.value,
+                   ks.test(ui.2$PARA, ui.4$PARA)$p.value,
+                   ks.test(ui.3$PARA, ui.4$PARA)$p.value), digits = 4)
+FRAC.ks <- round(c(ks.test(ui.1$FRAC, ui.2$FRAC)$p.value,
+                   ks.test(ui.1$FRAC, ui.3$FRAC)$p.value,
+                   ks.test(ui.1$FRAC, ui.4$FRAC)$p.value,
+                   ks.test(ui.2$FRAC, ui.3$FRAC)$p.value,
+                   ks.test(ui.2$FRAC, ui.4$FRAC)$p.value,
+                   ks.test(ui.3$FRAC, ui.4$FRAC)$p.value), digits = 4)
+shape.ks <- data.frame(Area = Area.ks, PARA = PARA.ks, FRAC = FRAC.ks)
 
-# PARA K-S test
-a <- round(c(ks.test(ui.1$PARA, ui.2$PARA)$p.value,
-             ks.test(ui.1$PARA, ui.3$PARA)$p.value,
-             ks.test(ui.1$PARA, ui.4$PARA)$p.value,
-             ks.test(ui.2$PARA, ui.3$PARA)$p.value,
-             ks.test(ui.2$PARA, ui.4$PARA)$p.value,
-             ks.test(ui.3$PARA, ui.4$PARA)$p.value), digits = 4)
-b <- c("-", a[1:3], "-", "-", a[4:5], "-", "-", "-", a[6])
-PARA.summary <- data.frame(matrix(b, ncol = 4, nrow = 3, byrow = T))
-colnames(PARA.summary) <- c(1:4)
+# K-W test
+shape.kw <- round(c(kruskal.test(AREA ~ overlap, data = ui.data)$p.value,
+                    kruskal.test(PARA ~ overlap, data = ui.data)$p.value,
+                    kruskal.test(FRAC ~ overlap, data = ui.data)$p.value), digits = 4)
 
-# Area K-S test
-a <- round(c(ks.test(ui.1$AREA, ui.2$AREA)$p.value,
-             ks.test(ui.1$AREA, ui.3$AREA)$p.value,
-             ks.test(ui.1$AREA, ui.4$AREA)$p.value,
-             ks.test(ui.2$AREA, ui.3$AREA)$p.value,
-             ks.test(ui.2$AREA, ui.4$AREA)$p.value,
-             ks.test(ui.3$AREA, ui.4$AREA)$p.value), digits = 4)
-b <- c("-", a[1:3], "-", "-", a[4:5], "-", "-", "-", a[6])
-AREA.summary <- data.frame(matrix(b, ncol = 4, nrow = 3, byrow = T))
-colnames(AREA.summary) <- c(1:4)
+# Combine statistical testing table
+shape.tests <- rbind(shape.ks, shape.kw)
+row.names(shape.tests) <- c("1 vs. 2", "1 vs. 3", "1 vs. 4", "2 vs. 3", "2 vs. 4", "3 vs. 4", "Kruskal-Wallis")
 
-
+####
+# test zoom pairs
+ggplot(aes(y = value, x = variable, fill = Overlap), data = prop.plot.melt) +
+  geom_bar(position = position_fill(reverse = T), stat="identity", width = .5) +
+  coord_cartesian(ylim = c(0, 1)) +
+  labs(title = "Distribution of persistent unburned islands by degree of persistence", x = "", y = "Proportion") +
+  guides(fill=FALSE)
+ggplot(aes(y = value, x = variable, fill = Overlap), data = prop.plot.melt) +
+  geom_bar(position = position_fill(reverse = T), stat="identity") +
+  coord_cartesian(ylim = c(0.95, 1)) +
+  labs(title = "", x = "", y = "") +
+  guides(fill=guide_legend(title="Degree of\npersistence"))
