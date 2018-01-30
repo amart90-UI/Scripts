@@ -1,6 +1,8 @@
 # Setup
 setwd("U:/Refugia/Persistance/")
 library(raster)
+library(rgdal)
+library(reshape2)
 library(ggplot2)
 library(plyr)
 
@@ -34,7 +36,6 @@ area.stats <- ddply(ui.data, "overlap", summarise,
                     area.median = median(AREA), 
                     sd = sd(AREA), 
                     se = sd(AREA)/sqrt(length(AREA)))
-area.stats$prop.persist <- area.stats$prop.persist / (sum(ui.data$Area) - sum(ui.1$Area))
 area.stats$prop.persist <- c(0, area.stats$prop.persist[-1] / sum(area.stats$total[-1]))
 
 # Proportions
@@ -67,73 +68,26 @@ stats$overlap <- factor(stats$overlap)
 #write.csv(stats, "Persitsent_stats.csv")
 #read.csv("Persitsent_stats.csv")
 
-# Proportional Plots - this one might not be great
-prop.plot <- stats[-1, c(1,4,7)]
-colnames(prop.plot) <- c("Overlap", "By count", "By area")
-prop.plot.melt <- melt(prop.plot, id.vars = "Overlap")
+# Proportion by area plot
+area.prop <- data.frame(overlap = c("Burned", 1,2,3,4,1,2,3,4,2,3,4),
+                        values = c(1-sum(prop.stats$area.fire), prop.stats[,5], prop.stats[,6], prop.stats[-1,7]),
+                        group = factor(c(rep("Within fire perimeters", times = 5), rep("Among unburned islands", times = 4), 
+                                         rep("Among persistant unburned islands", times = 3))))
+area.prop$overlap <- factor(as.character(c("Burned", 1,2,3,4,1,2,3,4,2,3,4)), levels = c("Burned", 1,2,3,4))
+area.prop$group <- factor(area.prop$group, levels = rev(levels(area.prop$group)))
+area.prop$values <- 100 *area.prop$values
 
-ggplot(aes(y = value, x = variable, fill = Overlap), data = prop.plot.melt) +
+ggplot(aes(y = values, x = group, fill = overlap), data = area.prop) +
   geom_bar(position = position_fill(reverse = T), stat="identity") +
   coord_cartesian(ylim = c(0, 1)) +
-  labs(title = "Distribution of persistent unburned islands by degree of persistence", x = "", y = "Proportion") +
+  labs(title = "Distribution of persistent unburned islands (area) by degree of persistence", x = "", y = "Proportion of area (%)") +
   guides(fill=guide_legend(title="Degree of\npersistence"))
 
-# Count proportion
-count.plot <- stats[,c(1,3,4)]
-colnames(count.plot) <- c("Overlap", "Among all unburned", "Among persistent unburned only")
-count.plot.melt <- melt(count.plot, id.vars = "Overlap")
-count.plot.melt$value <- as.numeric(count.plot.melt$value)
-count.plot.melt$Overlap <- factor(count.plot.melt$Overlap, levels = c("1", "2", "3", "4"))
-
-ggplot(aes(y = value, x = variable, fill = Overlap), data = count.plot.melt) +
-  geom_bar(position = position_stack(reverse = T), stat="identity") +
-  coord_cartesian(ylim = c(0.85, 1)) +
-  labs(title = "Distribution of unburned islands (by count) by degree of persistence", x = "", y = "Proportion by count") +
-  scale_fill_manual(values=c("#c2e699", "#78c679", "#31a354", "#006837")) +
-  guides(fill=guide_legend(title="Degree of\npersistence"))
-
-# Area proportion
-area.plot <- stats[, c(1,5:7)]
-area.plot <- rbind(c("Burned", 1- sum(area.plot$area.prop.fire), NA, NA), area.plot)
-colnames(area.plot) <- c("Overlap", "Within fire perimeter", "Among all unburned", "Among persistent unburned only")
-area.plot.melt <- melt(area.plot, id.vars =  "Overlap")
-area.plot.melt$value <- as.numeric(area.plot.melt$value)
-area.plot.melt$Overlap <- factor(area.plot.melt$Overlap, levels = c("Burned", "1", "2", "3", "4"))
-
-ggplot(aes(y = value, x = variable, fill = Overlap), data = area.plot.melt) +
-  geom_bar(position = position_stack(reverse = T), stat="identity") +
-  coord_cartesian(ylim = c(0.85, 1)) +
-  labs(title = "Distribution of unburned islands (by area) by degree of persistence", x = "", y = "Proportion by area") +
-  scale_fill_manual(values=c("#ffffcc", "#c2e699", "#78c679", "#31a354", "#006837"))
-
-# Faceted shape Plots - maybe not these ones
-ggplot(ui.data, aes(x=Perim)) + 
-  geom_density(fill = "darkgreen", alpha = 0.2) +
-  facet_wrap(~overlap) +
-  labs(title = "Unburned island perimeter (m) distribution by degree of persistance", x = "Perimeter length (m)", y = "Density") +
-  xlim(c(0, 1000))
-ggplot(ui.data, aes(x=AREA)) + 
-  geom_density(fill = "darkgreen", alpha = 0.2) +
-  facet_wrap(~overlap) +
-  labs(title = "Area (sq. m) distribution by degree of persistance", x = "Area (m)", y = "Density") +
-  xlim(c(0, 20000))
-ggplot(ui.data, aes(x=PARA)) + 
-  geom_density(fill = "darkgreen", alpha = 0.2) +
-  facet_wrap(~overlap) +
-  labs(title = "Perimeter-area ratio (PARA) distribution by degree of persistance", x = "PARA", y = "Density")
-ggplot(ui.data, aes(x=FRAC)) + 
-  geom_density(fill = "darkgreen", alpha = 0.2) +
-  facet_wrap(~overlap) +
-  labs(title = "Fractional dimension index (FRAC) distribution by degree of persistance", x = "FRAC", y = "Density") +
-  xlim(c(1,1.2))
-##
-
+# Stacked shape plots
 med <- ddply(ui.data, "overlap", summarise, # calculate medians
              AREA.med = median(AREA), PARA.med = median(PARA), FRAC.med = median(FRAC))
 med$overlap <- factor(med$overlap)
-##
 
-# Stacked shape plots
 ggplot(ui.data, aes(x=AREA, colour = factor(overlap))) + 
   geom_density(position = "identity", fill = NA, size = 1) +
   geom_vline(data = med, aes(xintercept = AREA.med, colour=overlap), linetype = "dashed") +
@@ -185,16 +139,3 @@ shape.kw <- round(c(kruskal.test(AREA ~ overlap, data = ui.data)$p.value,
 # Combine statistical testing table
 shape.tests <- rbind(shape.ks, shape.kw)
 row.names(shape.tests) <- c("1 vs. 2", "1 vs. 3", "1 vs. 4", "2 vs. 3", "2 vs. 4", "3 vs. 4", "Kruskal-Wallis")
-
-####
-# test zoom pairs
-ggplot(aes(y = value, x = variable, fill = Overlap), data = prop.plot.melt) +
-  geom_bar(position = position_fill(reverse = T), stat="identity", width = .5) +
-  coord_cartesian(ylim = c(0, 1)) +
-  labs(title = "Distribution of persistent unburned islands by degree of persistence", x = "", y = "Proportion") +
-  guides(fill=FALSE)
-ggplot(aes(y = value, x = variable, fill = Overlap), data = prop.plot.melt) +
-  geom_bar(position = position_fill(reverse = T), stat="identity") +
-  coord_cartesian(ylim = c(0.95, 1)) +
-  labs(title = "", x = "", y = "") +
-  guides(fill=guide_legend(title="Degree of\npersistence"))
