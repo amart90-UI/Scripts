@@ -1,7 +1,6 @@
 # Setup
 setwd("U:/Refugia/Persistance/")
 library(raster)
-library(rgdal)
 
 # Load data
 dem <- raster("DEM/dem_perim_alb.tif")
@@ -29,7 +28,7 @@ slope <- terrain(dem, opt="slope", unit="degrees", filename = "Intermediates/Var
 aspect <- terrain(dem, opt="aspect", unit="degrees", filename = "Intermediates/Variables/aspect.tif")
 cos.asp <- cos(aspect * pi/180)
 writeRaster(cos.asp, "Intermediates/Variables/CosAsp", "GTiff", overwrite = T)
-TRASP <- (-1 * cos((aspect - 30) * pi/180) + 1)/2 #Transformed aspect: Roberts & Cooper, 1989
+TRASP <- ((-1 *cos((aspect - 30) * pi/180)) + 1) / 2 #Transformed aspect: Roberts & Cooper, 1989
 writeRaster(TRASP, "Intermediates/Variables/TRASP", "GTiff", overwrite = T)
 SWASP <- cos((45 - aspect) * pi/180) + 1 #Southwest aspect: Ohmann & Spies, 1998
 writeRaster(SWASP, "Intermediates/Variables/SWASP", "GTiff", overwrite = T)
@@ -38,3 +37,7 @@ writeRaster(SCOSA, "Intermediates/Variables/SCOSA", "GTiff", overwrite = T)
 
 # Write intermediates
 writeOGR(as(perim.buff, 'SpatialPolygonsDataFrame'), dsn = "U:/Refugia/Persistance/Intermediates", layer = "perim_buff", driver = "ESRI Shapefile")
+
+
+#
+TRASP <- calc(aspect, fun = function(x) {((-1 *cos((x - 30) * pi/180)) + 1) / 2}, filename = "Intermediates/Variables/TRASP.tif")

@@ -3,7 +3,6 @@ setwd("U:/Refugia/Persistance/")
 library(ggplot2)
 library(reshape2)
 library(plyr)
-#library(dunn.test)
 
 # Load data
 sampl.data <- read.csv("valuetable.csv")
