@@ -33,43 +33,60 @@ med <- ddply(sampl.data, c("Unburned", "Cvr"), summarise, # calculate medians
              TPI.med = median(TPI), TPI90.med = median(TPI_90), TRI.med = median(TRI), TRI90.med = median(TRI_90),
              rough.med = median(rough), rough90.med = median(rough_90), slope.med = median(slope), cosasp.med = median(cos.asp),
              TRASP.med = median(TRASP), SWASP.med = median(SWASP), SCOSA.med = median(SCOSA))
+ddply(sampl.data, c("Cvr"), summarise, sd = sd(TPI_90))
 
 # Faceted kernel density estimation plots
 col <- c("#D55E00", "cyan3")
 
 ggplot(sampl.data, aes(x=TPI_90, colour=Unburned)) + 
   geom_density(size = 1) +
-  geom_vline(data = med, aes(xintercept = TPI90.med, colour=Unburned), linetype = "dashed") +
+  geom_vline(data = med, aes(xintercept = TPI90.med, colour=Unburned), linetype = "dashed", size = 1) +
   facet_wrap(~Cvr)+
   labs(title = "", x = "TPI", y = "Density") +
-  scale_color_manual("Dashed line \nas median", labels = c("Burned", "Persistent \nUnburned"), values = col)
+  scale_color_manual("", labels = c("Burned   ", "Persistent Unburned"), values = col) +
+  coord_cartesian(xlim = c(-30, 30)) +
+  theme(axis.text=element_text(size=18), axis.title=element_text(size=22), 
+        legend.text = element_text(size=18),legend.title=element_text(size=22), 
+        strip.text.x = element_text(size = 22), legend.position="bottom")
 ggplot(sampl.data, aes(x=TRI_90, colour=Unburned)) + 
   geom_density(size = 1) +
-  geom_vline(data = med, aes(xintercept = TRI90.med, colour=Unburned), linetype = "dashed") +
+  geom_vline(data = med, aes(xintercept = TRI90.med, colour=Unburned), linetype = "dashed", size = 1) +
   facet_wrap(~Cvr)+
   labs(title = "", x = "TRI", y = "Density") +
-  scale_color_manual("Dashed line \nas median", labels = c("Burned", "Persistent \nUnburned"), values = col)
+  scale_color_manual("", labels = c("Burned   ", "Persistent Unburned"), values = col) +
+  theme(axis.text=element_text(size=18), axis.title=element_text(size=22), 
+        legend.text = element_text(size=18),legend.title=element_text(size=22), 
+        strip.text.x = element_text(size = 22), legend.position="bottom")
 ggplot(sampl.data, aes(x=slope, colour=Unburned)) + 
   geom_density(size = 1) +
-  geom_vline(data = med, aes(xintercept = slope.med, colour=Unburned), linetype = "dashed") +
+  geom_vline(data = med, aes(xintercept = slope.med, colour=Unburned), linetype = "dashed", size = 1) +
   facet_wrap(~Cvr)+
   labs(title = "", x = "Slope (°)", y = "Density") +
-  scale_color_manual("Dashed line \nas median", labels = c("Burned", "Persistent \nUnburned"), values = col)
+  scale_color_manual("", labels = c("Burned   ", "Persistent Unburned"), values = col) +
+  theme(axis.text=element_text(size=18), axis.title=element_text(size=22), 
+        legend.text = element_text(size=18),legend.title=element_text(size=22), 
+        strip.text.x = element_text(size = 22), legend.position="bottom")
 ggplot(sampl.data, aes(x=TRASP, colour=Unburned)) + 
   geom_density(size = 1) +
-  geom_vline(data = med, aes(xintercept = TRASP.med, colour=Unburned), linetype = "dashed") +
+  geom_vline(data = med, aes(xintercept = TRASP.med, colour=Unburned), linetype = "dashed", size = 1) +
   facet_wrap(~Cvr)+
   labs(title = "", x = "TRASP", y = "Density") +
-  scale_color_manual("Dashed line \nas median", labels = c("Burned", "Persistent \nUnburned"), values = col)
+  scale_color_manual("", labels = c("Burned   ", "Persistent Unburned"), values = col) +
+  theme(axis.text=element_text(size=18), axis.title=element_text(size=22), 
+        legend.text = element_text(size=18),legend.title=element_text(size=22), 
+        strip.text.x = element_text(size = 22), legend.position="bottom")
 ggplot(sampl.data, aes(x=SCOSA, colour=Unburned)) + 
   geom_density(size = 1) +
-  geom_vline(data = med, aes(xintercept = SCOSA.med, colour=Unburned), linetype = "dashed") +
+  geom_vline(data = med, aes(xintercept = SCOSA.med, colour=Unburned), linetype = "dashed", size = 1) +
   facet_wrap(~Cvr)+
   labs(title = "", x = "SCOSA", y = "Density") +
-  scale_color_manual("Dashed line \nas median", labels = c("Burned", "Persistent \nUnburned"), values = col)
+  scale_color_manual("", labels = c("Burned   ", "Persistent Unburned"), values = col) +
+  theme(axis.text=element_text(size=18), axis.title=element_text(size=22), 
+        legend.text = element_text(size=18),legend.title=element_text(size=22), 
+        strip.text.x = element_text(size = 22), legend.position="bottom")
 
 # Build data frames
-TopoSummary <- data.frame(Variable = c("TPI", "TPI_90", "TRI", "TRI_90", "rough", "rough_90", "slope", "cos.asp", "TRASP", "SWASP", "SCOSA"))
+TopoSummary <- data.frame(Variable = c("TPI_90", "TRI_90", "slope", "TRASP", "SCOSA"))
 
 # K-S Tests
 pub <- sampl.data[sampl.data[, "Unburned"] == 1,]
@@ -79,12 +96,10 @@ TopoSummary$`K-S.Burn.vs.PUB` <- c(
   ks.test(pub$TRI_90, burn$TRI_90)$p.value,
   ks.test(pub$slope, burn$slope)$p.value,
   ks.test(pub$TRASP, burn$TRASP)$p.value,
-  ks.test(pub$SWASP, burn$SWASP)$p.value,
   ks.test(pub$SCOSA, burn$SCOSA)$p.value)
 
 pub.f <- Forest[Forest[, "Unburned"] == 1,]
 burn.f <- Forest[Forest[, "Unburned"] == 0,]
-
 TopoSummary$`K-S.Burn.vs.PUB.Forest` <- c(
   ks.test(pub.f$TPI_90, burn.f$TPI_90)$p.value,
   ks.test(pub.f$TRI_90, burn.f$TRI_90)$p.value,
@@ -94,7 +109,6 @@ TopoSummary$`K-S.Burn.vs.PUB.Forest` <- c(
 
 pub.r <- Range[Range[, "Unburned"] == 1,]
 burn.r <- Range[Range[, "Unburned"] == 0,]
-
 TopoSummary$`K-S.Burn.vs.PUB.Range` <- c(
   ks.test(pub.r$TPI_90, burn.r$TPI_90)$p.value,
   ks.test(pub.r$TRI_90, burn.r$TRI_90)$p.value,
