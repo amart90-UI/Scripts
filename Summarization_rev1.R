@@ -17,6 +17,10 @@ ui.data <- read.csv("Intermediates/OverlapLndCvr.csv")
 #ui.data <- ui.data[, c(2:5]
 ui.data$Cvr <- rep(1:2, length.out = 816802)
 ui.data$overlap <- factor(ui.data$overlap)
+ui.data$lvl[ui.data$overlap == 1] <- "Unburned for 1 fire  "
+ui.data$lvl[ui.data$overlap == 2] <- "Unburned for 2 fires  "
+ui.data$lvl[ui.data$overlap == 3] <- "Unburned for 3 fires  "
+ui.data$lvl[ui.data$overlap == 4] <- "Unburned for 4 fires  "
 
 Forest <- ui.data[ui.data$Cvr == 1,]
 Range <- ui.data[ui.data$Cvr == 2,]
@@ -74,38 +78,48 @@ stats$overlap <- factor(stats$overlap)
 #read.csv("Persitsent_stats.csv")
 
 # Proportion by area plot
+col <- c("#D55E00", "#f39c12", "#27ae60", "#2980b9", "#8e44ad")
 lvl <- c("Burned", "Unburned for 1 fire", "Unburned for 2 fires", "Unburned for 3 fires", "Unburned for 4 fires")
-area.prop <- data.frame(overlap = c(lvl, lvl[2:5],lvl[3:5]),
-                        values = c(1-sum(prop.stats$area.fire), prop.stats[,5], prop.stats[,6], prop.stats[-1,7]),
+
+area.prop <- data.frame(overlap = c(lvl, lvl[2:5],lvl[3:5], lvl[4:5]),
+                        values = c(1-sum(prop.stats$area.fire), prop.stats[,5], prop.stats[,6], prop.stats[-1,7], prop.stats[3:4,8]),
                         group = factor(c(rep("Within fire perimeters", times = 5), rep("Among unburned islands", times = 4), 
-                                         rep("Among persistant unburned islands", times = 3))))
+                                         rep("Among persistant unburned islands", times = 3), "Among persistant (2+)", "Among persistant (2+)")))
 area.prop$group <- factor(area.prop$group, levels = rev(levels(area.prop$group)))
 
 ggplot(aes(y = values, x = group, fill = overlap), data = area.prop) +
   geom_bar(position = position_fill(reverse = T), stat="identity") +
   labs(title = "", x = "", y = "Proportion of area") +
-  guides(fill=guide_legend(title="Degree of persistence"))
+  scale_fill_manual("Degree of\npersistence ", values = col) +
+  guides(fill=guide_legend(nrow=2,byrow=TRUE))+
+  theme(axis.text.x=element_blank(), axis.ticks.x=element_blank(), 
+        axis.text=element_text(size=18), axis.title=element_text(size=22), 
+        legend.text = element_text(size=18),legend.title=element_text(size=22), legend.position="bottom")
 
 # Stacked shape plots
 med <- ddply(ui.data, "overlap", summarise, # calculate medians
              AREA.med = median(AREA), PARA.med = median(PARA), FRAC.med = median(FRAC))
 med$overlap <- factor(med$overlap)
 
-ggplot(ui.data, aes(x=AREA, colour = factor(overlap))) + 
-  geom_density(position = "identity", fill = NA, size = 1) +
-  geom_vline(data = med, aes(xintercept = AREA.med, colour=overlap), linetype = "dashed") +
-  scale_x_continuous(breaks = seq(0, 15000, 2500), limits=c(0, 15000)) +
-  labs(title = expression(paste("Unburned island area (", m^2, ") distribution by degree of persistance")), 
-       x = expression(paste("Area (", m^2, ")")), y = "Density", colour = "Degree of\npersistence")
-ggplot(ui.data, aes(x=PARA, colour = factor(overlap))) + 
-  geom_density(position = "identity", fill = NA, size = 1) +
-  geom_vline(data = med, aes(xintercept = PARA.med, colour=overlap), linetype = "dashed") +
-  labs(title = "Unburned island perimeter area ratio (PARA) distribution by degree of persistance", x = "PARA", y = "Density", colour = "Degree of\npersistence")
-ggplot(ui.data, aes(x=FRAC, colour = factor(overlap))) + 
-  geom_density(position = "identity", fill = NA, size = 1) +
-  geom_vline(data = med, aes(xintercept = FRAC.med, colour=overlap), linetype = "dashed") +
-  scale_x_continuous(limits=c(1, 1.25)) +
-  labs(title = "Unburned island Fractional Dimension Index (FRAC) distribution by degree of persistance", x = "FRAC", y = "Density", colour = "Degree of\npersistence")
+ggplot(ui.data, aes(x=FRAC, fill = factor(lvl))) +
+  geom_histogram(breaks = seq(from = 1, to = 1.25, by = 0.025)) +
+  geom_vline(data = med, aes(xintercept = FRAC.med, colour=overlap), 
+             linetype = c("dashed", "dashed", "dashed", "longdash"), size = 1) +
+  guides(colour = FALSE, fill = guide_legend(nrow=2,byrow=TRUE)) +
+  theme(axis.text=element_text(size=18), axis.title=element_text(size=22), 
+        legend.text = element_text(size=18),legend.title=element_text(size=22), 
+        strip.text.x = element_text(size = 22), legend.position="bottom") +
+  labs(fill = "Degree of Persistence ", x = "FRAC", y = "Frequency")
+
+ggplot(ui.data, aes(x=AREA, fill = factor(lvl))) +
+  geom_histogram(breaks = seq(from = 0, to = 18000, by = 1200)) +
+  geom_vline(data = med, aes(xintercept = AREA.med, colour=overlap), 
+             linetype = c("dashed", "dashed", "dashed", "longdash"), size = 1) +
+  guides(colour = FALSE, fill = guide_legend(nrow=2,byrow=TRUE)) +
+  theme(axis.text=element_text(size=18), axis.title=element_text(size=22), 
+        legend.text = element_text(size=18),legend.title=element_text(size=22), 
+        strip.text.x = element_text(size = 22), legend.position="bottom") +
+  labs(fill = "Degree of Persistence ", x = expression(paste("Area (", m^2, ")")), y = "Frequency")
 
 # Partition data for testing
 ui.1 <- ui.data[ui.data$overlap == 1,]
@@ -120,23 +134,16 @@ Area.ks <- round(c(ks.test(ui.1$AREA, ui.2$AREA)$p.value,
                    ks.test(ui.2$AREA, ui.3$AREA)$p.value,
                    ks.test(ui.2$AREA, ui.4$AREA)$p.value,
                    ks.test(ui.3$AREA, ui.4$AREA)$p.value), digits = 4)
-PARA.ks <- round(c(ks.test(ui.1$PARA, ui.2$PARA)$p.value,
-                   ks.test(ui.1$PARA, ui.3$PARA)$p.value,
-                   ks.test(ui.1$PARA, ui.4$PARA)$p.value,
-                   ks.test(ui.2$PARA, ui.3$PARA)$p.value,
-                   ks.test(ui.2$PARA, ui.4$PARA)$p.value,
-                   ks.test(ui.3$PARA, ui.4$PARA)$p.value), digits = 4)
 FRAC.ks <- round(c(ks.test(ui.1$FRAC, ui.2$FRAC)$p.value,
                    ks.test(ui.1$FRAC, ui.3$FRAC)$p.value,
                    ks.test(ui.1$FRAC, ui.4$FRAC)$p.value,
                    ks.test(ui.2$FRAC, ui.3$FRAC)$p.value,
                    ks.test(ui.2$FRAC, ui.4$FRAC)$p.value,
                    ks.test(ui.3$FRAC, ui.4$FRAC)$p.value), digits = 4)
-shape.ks <- data.frame(Area = Area.ks, PARA = PARA.ks, FRAC = FRAC.ks)
+shape.ks <- data.frame(Area = Area.ks, FRAC = FRAC.ks)
 
 # K-W test
 shape.kw <- round(c(kruskal.test(AREA ~ overlap, data = ui.data)$p.value,
-                    kruskal.test(PARA ~ overlap, data = ui.data)$p.value,
                     kruskal.test(FRAC ~ overlap, data = ui.data)$p.value), digits = 4)
 
 # Combine statistical testing table
@@ -200,20 +207,7 @@ ggplot(aes(y = values, x = group, fill = overlap), data = area.prop) +
 
 
 #####
-col <- c("#D55E00", "#f39c12", "#27ae60", "#2980b9", "#8e44ad")
-lvl <- c("Burned", "Unburned for 1 fire", "Unburned for 2 fires", "Unburned for 3 fires", "Unburned for 4 fires")
-area.prop <- data.frame(overlap = c(lvl, lvl[2:5],lvl[3:5], lvl[4:5]),
-                        values = c(1-sum(prop.stats$area.fire), prop.stats[,5], prop.stats[,6], prop.stats[-1,7], prop.stats[3:4,8]),
-                        group = factor(c(rep("Within fire perimeters", times = 5), rep("Among unburned islands", times = 4), 
-                                         rep("Among persistant unburned islands", times = 3), "a", "a")))
-area.prop$group <- factor(area.prop$group, levels = rev(levels(area.prop$group)))
-
-ggplot(aes(y = values, x = group, fill = overlap), data = area.prop) +
-  geom_bar(position = position_fill(reverse = T), stat="identity") +
-  labs(title = "", x = "", y = "Proportion of area") +
-  theme(axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
-  scale_fill_manual("Degree of\npersistence", values = col)
-
+fire.area / 10000
 area.stats$total / 10000
 
 col <- c("#D55E00", "#f39c12", "#27ae60", "#2980b9", "#8e44ad")
