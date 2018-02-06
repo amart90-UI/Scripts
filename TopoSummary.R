@@ -1,5 +1,5 @@
 # Setup
-setwd("U:/Refugia/Persistance/")
+setwd("S:/COS/PyroGeog/amartinez/Persistance")
 library(ggplot2)
 library(reshape2)
 library(plyr)

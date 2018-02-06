@@ -1,5 +1,5 @@
 # Setup
-setwd("U:/Refugia/Persistance/")
+setwd("S:/COS/PyroGeog/amartinez/Persistance")
 library(raster)
 library(rgdal)
 library(reshape2)
