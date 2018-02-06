@@ -7,15 +7,16 @@ library(ggplot2)
 library(plyr)
 
 # Load data
-fire <- readOGR("Data/perims_dissolve.shp")
-fire.data <- fire@data
+#fire <- readOGR("Data/perims_dissolve.shp")
+#fire.data <- fire@data
+fire.table <- read.csv("Intermediates/fire_area.csv")
 #ui <- readOGR("Data/ui_overlap.shp")
 #ui.data <- ui@data[,-1]
 #write.csv(ui.data, "Intermediates/OverlapData.csv")
 #ui.data <- read.csv("Intermediates/OverlapData.csv")
 ui.data <- read.csv("Intermediates/OverlapLndCvr.csv")
 #ui.data <- ui.data[, c(2:5]
-ui.data$Cvr <- rep(1:2, length.out = 816802)
+#ui.data$Cvr <- rep(1:2, length.out = 816802)
 ui.data$overlap <- factor(ui.data$overlap)
 ui.data$lvl[ui.data$overlap == 1] <- "Unburned for 1 fire  "
 ui.data$lvl[ui.data$overlap == 2] <- "Unburned for 2 fires  "
@@ -26,7 +27,7 @@ Forest <- ui.data[ui.data$Cvr == 1,]
 Range <- ui.data[ui.data$Cvr == 2,]
 
 # Fire boundary statistics
-fire.area <- sum(fire.data$Area)
+fire.area <- 82239808708 # sum(fire.data$Area)
 
 # Shape indices
 ui.data$FRAC <- 2 * log(.25 * ui.data$Perim) / log(ui.data$AREA) # Fractal dimension index
@@ -78,23 +79,28 @@ stats$overlap <- factor(stats$overlap)
 #read.csv("Persitsent_stats.csv")
 
 # Proportion by area plot
-col <- c("#D55E00", "#f39c12", "#27ae60", "#2980b9", "#8e44ad")
-lvl <- c("Burned", "Unburned for 1 fire", "Unburned for 2 fires", "Unburned for 3 fires", "Unburned for 4 fires")
-
-area.prop <- data.frame(overlap = c(lvl, lvl[2:5],lvl[3:5], lvl[4:5]),
-                        values = c(1-sum(prop.stats$area.fire), prop.stats[,5], prop.stats[,6], prop.stats[-1,7], prop.stats[3:4,8]),
-                        group = factor(c(rep("Within fire perimeters", times = 5), rep("Among unburned islands", times = 4), 
-                                         rep("Among persistant unburned islands", times = 3), "Among persistant (2+)", "Among persistant (2+)")))
+lvl <- c("Burned, 1 fire", "Burned, 2+ fires  ", "Unburned for 1 fire", "Unburned for 2 fires  ", "Unburned for 3 fires", "Unburned for 4 fires")
+col <- c("#a50026", "#f46d43", "#d9ef8b", "#66bd63", "#1a9850", "#006837")
+burn.1 <- fire.table$SUM_AREA[1] /sum(fire.table$SUM_AREA)
+burn.2 <- sum(fire.table$SUM_AREA[-1]) /sum(fire.table$SUM_AREA)
+area.prop <- data.frame(overlap = c(lvl, lvl[3:6],lvl[4:6], lvl[5:6]),
+                        values = c(burn.1 * (1-sum(prop.stats$area.fire)), burn.2 * (1-sum(prop.stats$area.fire)), prop.stats[,5], prop.stats[,6], prop.stats[-1,7], prop.stats[3:4,8]),
+                        group = factor(c(rep("Within fire perimeters", times = 6), rep("Among unburned islands", times = 4), 
+                                         rep("Among persistant unburned", times = 3), "Among persistant (2+)", "Among persistant (2+)")))
 area.prop$group <- factor(area.prop$group, levels = rev(levels(area.prop$group)))
+area.prop$values <- 100 * area.prop$values
 
 ggplot(aes(y = values, x = group, fill = overlap), data = area.prop) +
   geom_bar(position = position_fill(reverse = T), stat="identity") +
   labs(title = "", x = "", y = "Proportion of area") +
-  scale_fill_manual("Degree of\npersistence ", values = col) +
-  guides(fill=guide_legend(nrow=2,byrow=TRUE))+
-  theme(axis.text.x=element_blank(), axis.ticks.x=element_blank(), 
-        axis.text=element_text(size=18), axis.title=element_text(size=22), 
-        legend.text = element_text(size=18),legend.title=element_text(size=22), legend.position="bottom")
+  scale_fill_manual("Degree of persistence ", values = col) +
+  guides(fill=guide_legend(nrow=2,byrow=F))+
+  scale_y_continuous(labels = scales::percent)+
+  scale_x_discrete(position = "top") +
+  theme(axis.ticks.x=element_blank(), axis.text.y=element_text(size=26), axis.title=element_text(size=28), axis.text.x = element_text(size = 24), 
+        legend.text = element_text(size=26),legend.title=element_text(size=28), legend.position="bottom")
+
+c(fire.table$SUM_AREA[1] / 10000, sum(fire.table$SUM_AREA[-1]) / 10000, area.stats$total / 10000)
 
 # Stacked shape plots
 med <- ddply(ui.data, "overlap", summarise, # calculate medians
@@ -205,10 +211,3 @@ ggplot(aes(y = values, x = group, fill = overlap), data = area.prop) +
   labs(title = "Distribution of persistent unburned islands (area) by degree of persistence", x = "", y = "Proportion of area") +
   guides(fill=guide_legend(title="Degree of\npersistence"))
 
-
-#####
-fire.area / 10000
-area.stats$total / 10000
-
-col <- c("#D55E00", "#f39c12", "#27ae60", "#2980b9", "#8e44ad")
-col <- c("#b33939", "#cd6133", "#cc8e35", "#ffda79", "#f7f1e3")
