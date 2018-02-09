@@ -96,36 +96,37 @@ ggplot(aes(y = values, x = group, fill = overlap), data = area.prop) +
   scale_fill_manual("Degree of persistence ", values = col) +
   guides(fill=guide_legend(nrow=2,byrow=F))+
   scale_y_continuous(labels = scales::percent)+
-  scale_x_discrete(position = "top") +
+  scale_x_discrete(position = "bottom") +
   theme(axis.ticks.x=element_blank(), axis.text.y=element_text(size=26), axis.title=element_text(size=28), axis.text.x = element_text(size = 24), 
-        legend.text = element_text(size=26),legend.title=element_text(size=28), legend.position="bottom")
+        legend.text = element_text(size=26),legend.title=element_text(size=28), legend.position="top")
 
 c(fire.table$SUM_AREA[1] / 10000, sum(fire.table$SUM_AREA[-1]) / 10000, area.stats$total / 10000)
 
-# Stacked shape plots
-med <- ddply(ui.data, "overlap", summarise, # calculate medians
+# Shape KDE plots
+med <- ddply(ui.data, "lvl", summarise, # calculate medians
              AREA.med = median(AREA), PARA.med = median(PARA), FRAC.med = median(FRAC))
-med$overlap <- factor(med$overlap)
+med$lvl <- factor(med$lvl)
 
-ggplot(ui.data, aes(x=FRAC, fill = factor(lvl))) +
-  geom_histogram(breaks = seq(from = 1, to = 1.25, by = 0.025)) +
-  geom_vline(data = med, aes(xintercept = FRAC.med, colour=overlap), 
-             linetype = c("dashed", "dashed", "dashed", "longdash"), size = 1) +
-  guides(colour = FALSE, fill = guide_legend(nrow=2,byrow=TRUE)) +
-  theme(axis.text=element_text(size=18), axis.title=element_text(size=22), 
-        legend.text = element_text(size=18),legend.title=element_text(size=22), 
-        strip.text.x = element_text(size = 22), legend.position="bottom") +
-  labs(fill = "Degree of Persistence ", x = "FRAC", y = "Frequency")
+ggplot(ui.data, aes(x=FRAC, colour = lvl)) +
+  geom_density(adjust = 3, size = 1) +
+  geom_vline(data = med, aes(xintercept = FRAC.med, colour=lvl),  size = 1, linetype = c("dashed", "dashed", "dashed", "longdash"), show.legend = F) +
+  coord_cartesian(xlim = c(1, 1.15))  +
+  labs(colour = "Degree of Persistence ", x = "Fractional dimension index", y = "Density function (# of pixels)") +
+  annotate("text", y = 33, x = 1.02, label = paste(sprintf('\u2190'), "More simple"), size = 22/2.5) +
+  annotate("text", y = 33, x = 1.13, label = paste("More complex", sprintf('\u2192')), size = 22/2.5) +
+  guides(colour = guide_legend(nrow=2,byrow=F)) +
+  theme(axis.text.y=element_text(size=26), axis.text.x = element_text(size = 24), axis.title=element_text(size=28), 
+        legend.text = element_text(size=26),legend.title=element_text(size=28), legend.position="top")
 
-ggplot(ui.data, aes(x=AREA, fill = factor(lvl))) +
-  geom_histogram(breaks = seq(from = 0, to = 18000, by = 1200)) +
-  geom_vline(data = med, aes(xintercept = AREA.med, colour=overlap), 
-             linetype = c("dashed", "dashed", "dashed", "longdash"), size = 1) +
-  guides(colour = FALSE, fill = guide_legend(nrow=2,byrow=TRUE)) +
-  theme(axis.text=element_text(size=18), axis.title=element_text(size=22), 
-        legend.text = element_text(size=18),legend.title=element_text(size=22), 
-        strip.text.x = element_text(size = 22), legend.position="bottom") +
-  labs(fill = "Degree of Persistence ", x = expression(paste("Area (", m^2, ")")), y = "Frequency")
+ggplot(ui.data, aes(x=AREA, colour = lvl)) +
+  geom_density(adjust = 4.5, size = 1) +
+  geom_vline(data = med, aes(xintercept = AREA.med, colour=lvl),  size = 1, linetype = c("dashed", "dashed", "dashed", "longdash"), show.legend = F) +
+  geom_vline(xintercept=c(0, 1), colour="white", size=1) +
+  scale_x_continuous(breaks = seq(0, 10000, 2500), limits=c(0, 10000)) +
+    labs(colour = "Degree of Persistence ", x = expression(paste("Area (", m^2, ")")), y = "Density function (# of pixels)") +
+  guides(colour = guide_legend(nrow=2,byrow=F)) +
+  theme(axis.text.y=element_text(size=26), axis.text.x = element_text(size = 24), axis.title=element_text(size=28), 
+        legend.text = element_text(size=26),legend.title=element_text(size=28), legend.position="top")
 
 # Partition data for testing
 ui.1 <- ui.data[ui.data$overlap == 1,]
@@ -134,27 +135,28 @@ ui.3 <- ui.data[ui.data$overlap == 3,]
 ui.4 <- ui.data[ui.data$overlap == 4,]
 
 # K-S test
-Area.ks <- round(c(ks.test(ui.1$AREA, ui.2$AREA)$p.value,
-                   ks.test(ui.1$AREA, ui.3$AREA)$p.value,
-                   ks.test(ui.1$AREA, ui.4$AREA)$p.value,
-                   ks.test(ui.2$AREA, ui.3$AREA)$p.value,
-                   ks.test(ui.2$AREA, ui.4$AREA)$p.value,
-                   ks.test(ui.3$AREA, ui.4$AREA)$p.value), digits = 4)
-FRAC.ks <- round(c(ks.test(ui.1$FRAC, ui.2$FRAC)$p.value,
-                   ks.test(ui.1$FRAC, ui.3$FRAC)$p.value,
-                   ks.test(ui.1$FRAC, ui.4$FRAC)$p.value,
-                   ks.test(ui.2$FRAC, ui.3$FRAC)$p.value,
-                   ks.test(ui.2$FRAC, ui.4$FRAC)$p.value,
-                   ks.test(ui.3$FRAC, ui.4$FRAC)$p.value), digits = 4)
-shape.ks <- data.frame(Area = Area.ks, FRAC = FRAC.ks)
+ShapeSummary <-data.frame("Degree of persistence" = c("1 vs. 2", "", "1 vs. 3", "", "1 vs. 4", "", "2 vs. 3", "", "2 vs. 4", "", "3 vs. 4", ""),
+                          text = c(rep(c("D =", "p <"), length = 12)))
 
-# K-W test
-shape.kw <- round(c(kruskal.test(AREA ~ overlap, data = ui.data)$p.value,
-                    kruskal.test(FRAC ~ overlap, data = ui.data)$p.value), digits = 4)
+ShapeSummary$Area <- c(ks.test(ui.1$AREA, ui.2$AREA)[c(1,2)],
+                       ks.test(ui.1$AREA, ui.3$AREA)[c(1,2)],
+                       ks.test(ui.1$AREA, ui.4$AREA)[c(1,2)],
+                       ks.test(ui.2$AREA, ui.3$AREA)[c(1,2)],
+                       ks.test(ui.2$AREA, ui.4$AREA)[c(1,2)],
+                       ks.test(ui.3$AREA, ui.4$AREA)[c(1,2)])
+ShapeSummary$FRAC <- c(ks.test(ui.1$FRAC, ui.2$FRAC)[c(1,2)],
+                       ks.test(ui.1$FRAC, ui.3$FRAC)[c(1,2)],
+                       ks.test(ui.1$FRAC, ui.4$FRAC)[c(1,2)],
+                       ks.test(ui.2$FRAC, ui.3$FRAC)[c(1,2)],
+                       ks.test(ui.2$FRAC, ui.4$FRAC)[c(1,2)],
+                       ks.test(ui.3$FRAC, ui.4$FRAC)[c(1,2)])
 
-# Combine statistical testing table
-shape.tests <- rbind(shape.ks, shape.kw)
-row.names(shape.tests) <- c("1 vs. 2", "1 vs. 3", "1 vs. 4", "2 vs. 3", "2 vs. 4", "3 vs. 4", "Kruskal-Wallis")
+ShapeSummary[,3:4] <- round(unlist(ShapeSummary[,3:4]), digits = 4)
+ShapeSummary[,3] <- paste(ShapeSummary[,2], ShapeSummary[,3])
+ShapeSummary[,4] <- paste(ShapeSummary[,2], ShapeSummary[,4])
+ShapeSummary <- ShapeSummary[, -2]
+write.csv(ShapeSummary, file = "ShapeSummary.csv")
+
 
 
 ########## strat by cover
@@ -210,4 +212,4 @@ ggplot(aes(y = values, x = group, fill = overlap), data = area.prop) +
   geom_bar(position = position_fill(reverse = T), stat="identity") +
   labs(title = "Distribution of persistent unburned islands (area) by degree of persistence", x = "", y = "Proportion of area") +
   guides(fill=guide_legend(title="Degree of\npersistence"))
-
+####
