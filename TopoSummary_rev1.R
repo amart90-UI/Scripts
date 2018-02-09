@@ -19,11 +19,11 @@ LookUp <- data.frame(old = c(2,3,4,5,7,8,9,10,11,12),
 for(i in 1:nrow(LookUp)){
   sampl.data$Cvr[sampl.data$LndCvr %in% LookUp$old[i]] <- LookUp$new[i]}
 sampl.data$Cvr[sampl.data$Cvr == 1] <- "Forest"
-sampl.data$Cvr[sampl.data$Cvr == 2] <- "Range"
+sampl.data$Cvr[sampl.data$Cvr == 2] <- "Rangeland"
 sampl.data$Cvr[sampl.data$Cvr == 3] <- "Other"
 Forest <- sampl.data[sampl.data[, "Cvr"] == "Forest",]
-Range <- sampl.data[sampl.data[, "Cvr"] == "Range",]
-sampl.data <- rbind(Forest, Range)
+Rangeland <- sampl.data[sampl.data[, "Cvr"] == "Rangeland",]
+sampl.data <- rbind(Forest, Rangeland)
 sampl.data$Cvr <- as.factor(sampl.data$Cvr)
 
 # Group by unburned and cover type
@@ -40,118 +40,124 @@ col <- c("#D55E00", "cyan3")
 
 ggplot(sampl.data, aes(x=TPI_90, colour=Unburned)) + 
   geom_density(size = 1) +
-  geom_vline(data = med, aes(xintercept = TPI90.med, colour=Unburned), linetype = "dashed", size = 1) +
+  geom_hline(yintercept=0, colour="white", size=1) +
+  geom_vline(data = med, aes(xintercept = TPI90.med, colour=Unburned, linetype = Unburned), size = 1, show.legend = F) +
+  annotate("text", y = 0.3, x = -20, label = paste(sprintf('\u2190'), "Valley"), size = 22/2.5) +
+  annotate("text", y = 0.3, x = 0, label = "Flat", size = 22/2.5) +
+  annotate("text", y = 0.3, x = 20, label = paste("Ridge", sprintf('\u2192')), size = 22/2.5) +
   facet_wrap(~Cvr)+
-  labs(title = "", x = "TPI", y = "Density") +
+  labs(title = "", x = "Topographic Posistion Index", y = "Density function (# of pixels)") +
+  scale_linetype_manual(values = c("dashed", "longdash"))+
   scale_color_manual("", labels = c("Burned   ", "Persistent Unburned"), values = col) +
   coord_cartesian(xlim = c(-30, 30)) +
-  theme(axis.text=element_text(size=18), axis.title=element_text(size=22), 
-        legend.text = element_text(size=18),legend.title=element_text(size=22), 
-        strip.text.x = element_text(size = 22), legend.position="bottom")
+  theme(axis.text.y=element_text(size=26), axis.text.x = element_text(size = 24), axis.title=element_text(size=28), 
+        legend.text = element_text(size=26),legend.title=element_text(size=28), 
+        strip.text.x = element_text(size = 26), legend.position="top")
+
 ggplot(sampl.data, aes(x=TRI_90, colour=Unburned)) + 
   geom_density(size = 1) +
-  geom_vline(data = med, aes(xintercept = TRI90.med, colour=Unburned), linetype = "dashed", size = 1) +
+  geom_hline(yintercept=0, colour="white", size=1) +
+  geom_vline(data = med, aes(xintercept = TRI90.med, colour=Unburned, linetype = Unburned), size = 1, show.legend = F) +
+  annotate("text", y = 0.1135, x = 12, label = paste(sprintf('\u2190'), "Less rugged"), size = 22/2.5) +
+  annotate("text", y = 0.1135, x = 50, label = paste("More rugged", sprintf('\u2192')), size = 22/2.5) +
   facet_wrap(~Cvr)+
-  labs(title = "", x = "TRI", y = "Density") +
+  labs(title = "", x = "Terrain Ruggedness Index", y = "Density function (# of pixels)") +
+  scale_linetype_manual(values = c("dashed", "longdash"))+
   scale_color_manual("", labels = c("Burned   ", "Persistent Unburned"), values = col) +
-  theme(axis.text=element_text(size=18), axis.title=element_text(size=22), 
-        legend.text = element_text(size=18),legend.title=element_text(size=22), 
-        strip.text.x = element_text(size = 22), legend.position="bottom")
+  coord_cartesian(xlim = c(0, 60)) +
+  theme(axis.text.y=element_text(size=26), axis.text.x = element_text(size = 24), axis.title=element_text(size=28), 
+        legend.text = element_text(size=26),legend.title=element_text(size=28), 
+        strip.text.x = element_text(size = 26), legend.position="top")
+
 ggplot(sampl.data, aes(x=slope, colour=Unburned)) + 
   geom_density(size = 1) +
-  geom_vline(data = med, aes(xintercept = slope.med, colour=Unburned), linetype = "dashed", size = 1) +
+  geom_hline(yintercept=0, colour="white", size=1) +
+  geom_vline(data = med, aes(xintercept = slope.med, colour=Unburned, linetype = Unburned), size = 1, show.legend = F) +
   facet_wrap(~Cvr)+
-  labs(title = "", x = "Slope (°)", y = "Density") +
+  labs(title = "", x = "Slope (°)", y = "Density function (# of pixels)") +
+  scale_linetype_manual(values = c("dashed", "longdash"))+
   scale_color_manual("", labels = c("Burned   ", "Persistent Unburned"), values = col) +
-  theme(axis.text=element_text(size=18), axis.title=element_text(size=22), 
-        legend.text = element_text(size=18),legend.title=element_text(size=22), 
-        strip.text.x = element_text(size = 22), legend.position="bottom")
+  theme(axis.text.y=element_text(size=26), axis.text.x = element_text(size = 24), axis.title=element_text(size=28), 
+        legend.text = element_text(size=26),legend.title=element_text(size=28), 
+        strip.text.x = element_text(size = 26), legend.position="top")
+
 ggplot(sampl.data, aes(x=TRASP, colour=Unburned)) + 
   geom_density(size = 1) +
-  geom_vline(data = med, aes(xintercept = TRASP.med, colour=Unburned), linetype = "dashed", size = 1) +
+  geom_hline(yintercept=0, colour="white", size=1) +
+  geom_vline(xintercept=c(0, 1), colour="white", size=1) +
+  geom_vline(data = med, aes(xintercept = TRASP.med, colour=Unburned, linetype = Unburned), size = 1, show.legend = F) +
+  annotate("text", y = 1.765, x = 0.125, label = paste(sprintf('\u2190'), "NNE"), size = 22/2.5) +
+  annotate("text", y = 1.765, x = 0.875, label = paste("SSW", sprintf('\u2192')), size = 22/2.5) +
   facet_wrap(~Cvr)+
-  labs(title = "", x = "TRASP", y = "Density") +
+  labs(title = "", x = "Transformed Aspect", y = "Density function (# of pixels)") +
+  scale_linetype_manual(values = c("dashed", "longdash"))+
   scale_color_manual("", labels = c("Burned   ", "Persistent Unburned"), values = col) +
-  theme(axis.text=element_text(size=18), axis.title=element_text(size=22), 
-        legend.text = element_text(size=18),legend.title=element_text(size=22), 
-        strip.text.x = element_text(size = 22), legend.position="bottom")
+  theme(axis.text.y=element_text(size=26), axis.text.x = element_text(size = 24), axis.title=element_text(size=28), 
+        legend.text = element_text(size=26),legend.title=element_text(size=28), 
+        strip.text.x = element_text(size = 26), legend.position="top")
+
 ggplot(sampl.data, aes(x=SCOSA, colour=Unburned)) + 
   geom_density(size = 1) +
-  geom_vline(data = med, aes(xintercept = SCOSA.med, colour=Unburned), linetype = "dashed", size = 1) +
+  geom_hline(yintercept=0, colour="white", size=1) +
+  geom_vline(data = med, aes(xintercept = SCOSA.med, colour=Unburned, linetype = Unburned), size = 1, show.legend = F) +
   facet_wrap(~Cvr)+
-  labs(title = "", x = "SCOSA", y = "Density") +
+  labs(title = "", x = "Topographic Posistion Index", y = "Density function (# of pixels)") +
+  scale_linetype_manual(values = c("dashed", "longdash"))+
   scale_color_manual("", labels = c("Burned   ", "Persistent Unburned"), values = col) +
-  theme(axis.text=element_text(size=18), axis.title=element_text(size=22), 
-        legend.text = element_text(size=18),legend.title=element_text(size=22), 
-        strip.text.x = element_text(size = 22), legend.position="bottom")
+  coord_cartesian(xlim = c(-40, 40)) +
+  theme(axis.text.y=element_text(size=26), axis.text.x = element_text(size = 24), axis.title=element_text(size=28), 
+        legend.text = element_text(size=26),legend.title=element_text(size=28), 
+        strip.text.x = element_text(size = 26), legend.position="top")
 
 # Build data frames
-TopoSummary <- data.frame(Variable = c("TPI_90", "TRI_90", "slope", "TRASP", "SCOSA"))
+TopoSummary <- data.frame(Variable = c("TPI_90", "", "TRI_90", "", "slope", "", "TRASP", "", "SCOSA", "", "n1 =", "n2 ="))
+TopoSummary$text <- c(rep(c("D =", "p <"), length = 10), "", "")
 
 # K-S Tests
 pub <- sampl.data[sampl.data[, "Unburned"] == 1,]
 burn <- sampl.data[sampl.data[, "Unburned"] == 0,]
 TopoSummary$`K-S.Burn.vs.PUB` <- c(
-  ks.test(pub$TPI_90, burn$TPI_90)$p.value,
-  ks.test(pub$TRI_90, burn$TRI_90)$p.value,
-  ks.test(pub$slope, burn$slope)$p.value,
-  ks.test(pub$TRASP, burn$TRASP)$p.value,
-  ks.test(pub$SCOSA, burn$SCOSA)$p.value)
+  ks.test(pub$TPI_90, burn$TPI_90)[c(1,2)],
+  ks.test(pub$TRI_90, burn$TRI_90)[c(1,2)],
+  ks.test(pub$slope, burn$slope)[c(1,2)],
+  ks.test(pub$TRASP, burn$TRASP)[c(1,2)],
+  ks.test(pub$SCOSA, burn$SCOSA)[c(1,2)],
+  nrow(pub), nrow(burn))
 
 pub.f <- Forest[Forest[, "Unburned"] == 1,]
 burn.f <- Forest[Forest[, "Unburned"] == 0,]
 TopoSummary$`K-S.Burn.vs.PUB.Forest` <- c(
-  ks.test(pub.f$TPI_90, burn.f$TPI_90)$p.value,
-  ks.test(pub.f$TRI_90, burn.f$TRI_90)$p.value,
-  ks.test(pub.f$slope, burn.f$slope)$p.value,
-  ks.test(pub.f$TRASP, burn.f$TRASP)$p.value,
-  ks.test(pub.f$SCOSA, burn.f$SCOSA)$p.value)
+  ks.test(pub.f$TPI_90, burn.f$TPI_90)[c(1,2)],
+  ks.test(pub.f$TRI_90, burn.f$TRI_90)[c(1,2)],
+  ks.test(pub.f$slope, burn.f$slope)[c(1,2)],
+  ks.test(pub.f$TRASP, burn.f$TRASP)[c(1,2)],
+  ks.test(pub.f$SCOSA, burn.f$SCOSA)[c(1,2)],
+  nrow(pub.f), nrow(burn.f))
 
-pub.r <- Range[Range[, "Unburned"] == 1,]
-burn.r <- Range[Range[, "Unburned"] == 0,]
-TopoSummary$`K-S.Burn.vs.PUB.Range` <- c(
-  ks.test(pub.r$TPI_90, burn.r$TPI_90)$p.value,
-  ks.test(pub.r$TRI_90, burn.r$TRI_90)$p.value,
-  ks.test(pub.r$slope, burn.r$slope)$p.value,
-  ks.test(pub.r$TRASP, burn.r$TRASP)$p.value,
-  ks.test(pub.r$SCOSA, burn.r$SCOSA)$p.value)
+pub.r <- Rangeland[Rangeland[, "Unburned"] == 1,]
+burn.r <- Rangeland[Rangeland[, "Unburned"] == 0,]
+TopoSummary$`K-S.Burn.vs.PUB.Rangeland` <- c(
+  ks.test(pub.r$TPI_90, burn.r$TPI_90)[c(1,2)],
+  ks.test(pub.r$TRI_90, burn.r$TRI_90)[c(1,2)],
+  ks.test(pub.r$slope, burn.r$slope)[c(1,2)],
+  ks.test(pub.r$TRASP, burn.r$TRASP)[c(1,2)],
+  ks.test(pub.r$SCOSA, burn.r$SCOSA)[c(1,2)],
+  nrow(pub.r), nrow(burn.r))
 
-TopoSummary$`K-S.Forest.vs.Range` <- c(
-  ks.test(Forest$TPI_90, Range$TPI_90)$p.value,
-  ks.test(Forest$TRI_90, Range$TRI_90)$p.value,
-  ks.test(Forest$slope, Range$slope)$p.value,
-  ks.test(Forest$TRASP, Range$TRASP)$p.value,
-  ks.test(Forest$SCOSA, Range$SCOSA)$p.value)
+TopoSummary$`K-S.Forest.vs.Rangeland` <- c(
+  ks.test(Forest$TPI_90, Rangeland$TPI_90)[c(1,2)],
+  ks.test(Forest$TRI_90, Rangeland$TRI_90)[c(1,2)],
+  ks.test(Forest$slope, Rangeland$slope)[c(1,2)],
+  ks.test(Forest$TRASP, Rangeland$TRASP)[c(1,2)],
+  ks.test(Forest$SCOSA, Rangeland$SCOSA)[c(1,2)],
+  nrow(Forest), nrow(Rangeland))
 
-# K-W Tests
-TopoSummary$`K-W.Burn.vs.PUB` <- c(
-  kruskal.test(TPI_90 ~ Unburned, data = sampl.data)$p.value,
-  kruskal.test(TRI_90 ~ Unburned, data = sampl.data)$p.value,
-  kruskal.test(slope ~ Unburned, data = sampl.data)$p.value,
-  kruskal.test(TRASP ~ Unburned, data = sampl.data)$p.value,
-  kruskal.test(SCOSA ~ Unburned, data = sampl.data)$p.value)
+TopoSummary[1:10,3:6] <- round(unlist(TopoSummary[1:10,3:6]), digits = 4)
+TopoSummary[,3] <- paste(TopoSummary[,2], TopoSummary[,3])
+TopoSummary[,4] <- paste(TopoSummary[,2], TopoSummary[,4])
+TopoSummary[,5] <- paste(TopoSummary[,2], TopoSummary[,5])
+TopoSummary[,6] <- paste(TopoSummary[,2], TopoSummary[,6])
+TopoSummary <- TopoSummary[,-2]
+write.csv(TopoSummary, file = "TopoStatTable.csv")
 
-TopoSummary$`K-W.Burn.vs.PUB.Forest` <- c(
-  kruskal.test(TPI_90 ~ Unburned, data = Forest)$p.value,
-  kruskal.test(TRI_90 ~ Unburned, data = Forest)$p.value,
-  kruskal.test(slope ~ Unburned, data = Forest)$p.value,
-  kruskal.test(TRASP ~ Unburned, data = Forest)$p.value,
-  kruskal.test(SCOSA ~ Unburned, data = Forest)$p.value)
 
-TopoSummary$`K-W.Burn.vs.PUB.Range` <- c(
-  kruskal.test(TPI_90 ~ Unburned, data = Range)$p.value,
-  kruskal.test(TRI_90 ~ Unburned, data = Range)$p.value,
-  kruskal.test(slope ~ Unburned, data = Range)$p.value,
-  kruskal.test(TRASP ~ Unburned, data = Range)$p.value,
-  kruskal.test(SCOSA ~ Unburned, data = Range)$p.value)
-
-TopoSummary$`K-W.Forest.vs.Range` <- c(
-  kruskal.test(TPI_90 ~ Cvr, data = sampl.data)$p.value,
-  kruskal.test(TRI_90 ~ Cvr, data = sampl.data)$p.value,
-  kruskal.test(slope ~ Cvr, data = sampl.data)$p.value,
-  kruskal.test(TRASP ~ Cvr, data = sampl.data)$p.value,
-  kruskal.test(SCOSA ~ Cvr, data = sampl.data)$p.value)
-
-TopoSummary[,-1] <- round(TopoSummary[,-1], digits = 4)
-
-# col <- c("#D55E00", "#0072B2", "#E69F00", "#56B4E9")
