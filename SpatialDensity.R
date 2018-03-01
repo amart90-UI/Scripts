@@ -1,6 +1,7 @@
 # Setup
 setwd("S:/COS/PyroGeog/amartinez/Persistance")
 library(raster)
+library(plyr)
 library(dplyr)
 
 # Load data
@@ -32,14 +33,13 @@ Proportion <-data.frame(ID = Areas$FID_fishne,
                         UI1 = Areas$Area_ui1 / Areas$Area_study,
                         UI2 = Areas$Area_ui2 / Areas$Area_study)
 Proportion <- Proportion[rowSums(is.na(Proportion[,-1])) < 4,]
-Proportion[is.na(Proportion)] <- 0
+Proportion[,-1] <- Proportion[,-1] * 100
 
 # Build Proportion (Density) Rasters
 Fire1 <- subs(ras, Proportion, by = 1, which = 2,  filename = "Intermediates/SpatialDensity/Fire1.tif", overwrite = T)
 Fire2 <- subs(ras, Proportion, by = 1, which = 3,  filename = "Intermediates/SpatialDensity/Fire2.tif", overwrite = T)
 UI1 <- subs(ras, Proportion, by = 1, which = 4,  filename = "Intermediates/SpatialDensity/UI1.tif", overwrite = T)
 UI2 <- subs(ras, Proportion, by = 1, which = 5,  filename = "Intermediates/SpatialDensity/UI2.tif", overwrite = T)
-
 
 # Plot Maps
 plot(Fire1)
