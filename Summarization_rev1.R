@@ -107,6 +107,16 @@ med <- ddply(ui.data, "lvl", summarise, # calculate medians
              AREA.med = median(AREA), PARA.med = median(PARA), FRAC.med = median(FRAC))
 med$lvl <- factor(med$lvl)
 
+ggplot(ui.data, aes(x=AREA, colour = lvl)) +
+  geom_density(adjust = 4.5, size = 1) +
+  geom_vline(data = med, aes(xintercept = AREA.med, colour=lvl),  size = 1, linetype = c("dashed", "dashed", "dashed", "longdash"), show.legend = F) +
+  geom_vline(xintercept=c(0, 1), colour="white", size=1) +
+  scale_x_continuous(breaks = seq(0, 10000, 2500), limits=c(0, 10000)) +
+  labs(colour = "Degree of Persistence ", x = expression(paste("Area (", m^2, ")")), y = "Density function (# of pixels)") +
+  guides(colour = guide_legend(nrow=2,byrow=F)) +
+  theme(axis.text.y=element_text(size=26), axis.text.x = element_text(size = 24), axis.title=element_text(size=28), 
+        legend.text = element_text(size=26),legend.title=element_text(size=28), legend.position="top")
+
 ggplot(ui.data, aes(x=FRAC, colour = lvl)) +
   geom_density(adjust = 3, size = 1) +
   geom_vline(data = med, aes(xintercept = FRAC.med, colour=lvl),  size = 1, linetype = c("dashed", "dashed", "dashed", "longdash"), show.legend = F) +
@@ -114,16 +124,6 @@ ggplot(ui.data, aes(x=FRAC, colour = lvl)) +
   labs(colour = "Degree of Persistence ", x = "Fractional dimension index", y = "Density function (# of pixels)") +
   annotate("text", y = 33, x = 1.02, label = paste(sprintf('\u2190'), "More simple"), size = 22/2.5) +
   annotate("text", y = 33, x = 1.13, label = paste("More complex", sprintf('\u2192')), size = 22/2.5) +
-  guides(colour = guide_legend(nrow=2,byrow=F)) +
-  theme(axis.text.y=element_text(size=26), axis.text.x = element_text(size = 24), axis.title=element_text(size=28), 
-        legend.text = element_text(size=26),legend.title=element_text(size=28), legend.position="top")
-
-ggplot(ui.data, aes(x=AREA, colour = lvl)) +
-  geom_density(adjust = 4.5, size = 1) +
-  geom_vline(data = med, aes(xintercept = AREA.med, colour=lvl),  size = 1, linetype = c("dashed", "dashed", "dashed", "longdash"), show.legend = F) +
-  geom_vline(xintercept=c(0, 1), colour="white", size=1) +
-  scale_x_continuous(breaks = seq(0, 10000, 2500), limits=c(0, 10000)) +
-    labs(colour = "Degree of Persistence ", x = expression(paste("Area (", m^2, ")")), y = "Density function (# of pixels)") +
   guides(colour = guide_legend(nrow=2,byrow=F)) +
   theme(axis.text.y=element_text(size=26), axis.text.x = element_text(size = 24), axis.title=element_text(size=28), 
         legend.text = element_text(size=26),legend.title=element_text(size=28), legend.position="top")
