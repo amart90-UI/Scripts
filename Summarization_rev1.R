@@ -158,25 +158,25 @@ ShapeSummary <- ShapeSummary[, -2]
 write.csv(ShapeSummary, file = "ShapeSummary.csv")
 
 # Compare Observed and Expected
-# Expected ui function (km2)
-exp1 <- data.frame(x = c(1:4), y = 0.096^c(1:4) * (fire.area * 10^-6))
-exp2 <- data.frame(x = seq(from = 1, to = 4, by = 0.05),
+# Expected ui function (km2) Meddens et al., 2018
+ui.exp1 <- data.frame(x = c(1:4), y = 0.096^c(1:4) * (fire.area * 10^-6))
+ui.exp2 <- data.frame(x = seq(from = 1, to = 4, by = 0.05),
                    y = (fire.area * 10^-6) * 0.096 ^ seq(from = 1, to = 4, by = 0.05))
 
 # observed ui function
-obs <- data.frame(x = c(1:4), y = area.stats$total * 10^-6)
-mod1 <- lm(log(y) ~ x, data = obs)
-obs.pred <- data.frame(x = seq(from = 1, to = 4, by = 0.05), 
+ui.obs <- data.frame(x = c(1:4), y = area.stats$total * 10^-6)
+mod1 <- lm(log(y) ~ x, data = ui.obs)
+ui.obs.pred <- data.frame(x = seq(from = 1, to = 4, by = 0.05), 
                        y = exp(predict(mod1, newdata = data.frame(x = seq(from = 1, to = 4, by = 0.05)))))
-
+summary(mod1)
 #
-exp.obs1 <- rbind(cbind(obs, data.frame(var = c(rep("Observed", times = 4)))),
-                 cbind(exp1, data.frame(var = c(rep("Expected", times = 4)))))
-exp.obs2 <- rbind(cbind(obs.pred, data.frame(var = c(rep("Observed", times = 61)))),
-                  cbind(exp2, data.frame(var = c(rep("Expected", times = 61)))))
+ui.exp.obs1 <- rbind(cbind(ui.obs, data.frame(var = c(rep("Observed", times = 4)))),
+                 cbind(ui.exp1, data.frame(var = c(rep("Expected", times = 4)))))
+ui.exp.obs2 <- rbind(cbind(ui.obs.pred, data.frame(var = c(rep("Observed", times = 61)))),
+                  cbind(ui.exp2, data.frame(var = c(rep("Expected", times = 61)))))
 
-ggplot(data = exp.obs1, aes(x = x, y = y, colour = var, shape = var)) +
-  geom_line(data = exp.obs2, aes(x = x, y = y, colour = var), size = 1) +
+ggplot(data = ui.exp.obs1, aes(x = x, y = y, colour = var, shape = var)) +
+  geom_line(data = ui.exp.obs2, aes(x = x, y = y, colour = var), size = 1) +
   geom_point(size = 4) +
   labs(x = "Degree of Persistence", y = expression(paste("Area (", km^2, ")"))) +
   theme(axis.text.y=element_text(size=26), axis.text.x = element_text(size = 24), axis.title=element_text(size=28), 
@@ -184,20 +184,60 @@ ggplot(data = exp.obs1, aes(x = x, y = y, colour = var, shape = var)) +
       legend.background = element_rect(fill = "grey90"), legend.title=element_blank())
 
 # bar chart
-change <- data.frame(x = c(1:4), y = obs$y - exp1$y)
+ui.change <- data.frame(x = c(1:4), y = ui.obs$y - ui.exp1$y)
 
-ggplot(data = change, aes(x = x,  y = y, colour = factor(1), fill = factor(y))) +
+ggplot(data = ui.change, aes(x = x,  y = y, colour = factor(1), fill = factor(y))) +
   geom_bar(stat = "identity") +
   geom_hline(yintercept = 0, size = 1) +
-  ylim(-550, 150) +
+  ylim(-590, 150) +
+  annotate("text", x = 1:4, y = c(90, -570, -100, -40), label = round(obs$y - ui.exp1$y, 1), size = 24 / 2.5) +
   scale_fill_manual(values=c("#8c510a", "#d8b365", "#f6e8c3", "#01665e")) +
   scale_colour_manual(values= rep("black", 4)) +
-  labs(x = "Degree of persistence", y = expression(paste("Observed area - Expected area (", km^2, ")"))) +
-  guides(colour = F, fill = F)
+  labs(x = "Degree of persistence", y = expression(paste("Observed area - Expected area ( ", km^2, ")"))) +
+  guides(colour = F, fill = F) +
+  theme(axis.text.y=element_text(size=26), axis.text.x = element_text(size = 24), axis.title=element_text(size=28))
+
+# Expected reburn (km2) Stevens-Rumann et al., 2016
+fire.exp1 <- data.frame(x = c(1:7), y = 0.03^c(1:7) * (fire.area * 10^-6))
+fire.exp2 <- data.frame(x = seq(from = 1, to = 7, by = 0.1),
+                   y = (fire.area * 10^-6) * 0.03 ^ (seq(from = 1, to = 7, by = 0.1)-1))
+
+
+# observed fire function
+fire.obs <- data.frame(x = fire.table$OVERLAP, y = rev(cumsum(rev(fire.table$SUM_AREA * 10^-6))))
+mod2 <- lm(log(y) ~ x, data = fire.obs)
+fire.obs.pred <- data.frame(x = seq(from = 1, to = 7, by = 0.1), 
+                          y = exp(predict(mod2, newdata = data.frame(x = seq(from = 1, to = 7, by = 0.1)))))
+
+fire.exp.obs1 <- rbind(cbind(fire.obs, data.frame(var = c(rep("Observed", times = 7)))),
+                     cbind(fire.exp1, data.frame(var = c(rep("Expected", times = 7)))))
+fire.exp.obs2 <- rbind(cbind(fire.obs.pred, data.frame(var = c(rep("Observed", times = 61)))),
+                     cbind(fire.exp2, data.frame(var = c(rep("Expected", times = 61)))))
+
+ggplot(data = fire.exp.obs1, aes(x = x, y = y, colour = var, shape = var)) +
+  geom_line(data = fire.exp.obs2, aes(x = x, y = y, colour = var), size = 1) +
+  geom_point(size = 4) +
+  labs(x = "Degree of Reburn", y = expression(paste("Area (", km^2, ")"))) +
+  theme(axis.text.y=element_text(size=26), axis.text.x = element_text(size = 24), axis.title=element_text(size=28), 
+        legend.text = element_text(size=26), legend.position=c(0.8, 0.9), 
+        legend.background = element_rect(fill = "grey90"), legend.title=element_blank())
+
+fire.change <- data.frame(x = c(1:7), y = fire.obs$y - fire.exp1$y)
+
+ggplot(data = fire.change, aes(x = x,  y = y, colour = factor(1), fill = factor(y))) +
+  geom_bar(stat = "identity") +
+  geom_hline(yintercept = 0, size = 1) +
+  ylim(-1,15000) + 
+  annotate("text", x = 1:7, y = fire.change$y + 1000 , label = round(fire.change$y, 1), size = 24 / 2.5) +
+  scale_fill_manual(values=c("#543005", "#f5f5f5","#c7eae5", "#80cdc1", "#35978f", "#01665e", "#003c30")) +
+  scale_colour_manual(values= rep("black", 7)) +
+  labs(x = "Degree of Reburn", y = expression(paste("Observed area - Expected area ( ", km^2, ")"))) +
+  guides(colour = F, fill = F) +
+  theme(axis.text.y=element_text(size=26), axis.text.x = element_text(size = 24), axis.title=element_text(size=28))
 
 ######
 
-
+plot()
 ########## strat by cover
 area.stats.f <- ddply(Forest, "overlap", summarise,
                     total = sum(AREA), 
