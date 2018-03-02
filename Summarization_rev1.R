@@ -157,6 +157,45 @@ ShapeSummary[,4] <- paste(ShapeSummary[,2], ShapeSummary[,4])
 ShapeSummary <- ShapeSummary[, -2]
 write.csv(ShapeSummary, file = "ShapeSummary.csv")
 
+# Compare Observed and Expected
+# Expected ui function (km2)
+exp1 <- data.frame(x = c(1:4), y = 0.096^c(1:4) * (fire.area * 10^-6))
+exp2 <- data.frame(x = seq(from = 1, to = 4, by = 0.05),
+                   y = (fire.area * 10^-6) * 0.096 ^ seq(from = 1, to = 4, by = 0.05))
+
+# observed ui function
+obs <- data.frame(x = c(1:4), y = area.stats$total * 10^-6)
+mod1 <- lm(log(y) ~ x, data = obs)
+obs.pred <- data.frame(x = seq(from = 1, to = 4, by = 0.05), 
+                       y = exp(predict(mod1, newdata = data.frame(x = seq(from = 1, to = 4, by = 0.05)))))
+
+#
+exp.obs1 <- rbind(cbind(obs, data.frame(var = c(rep("Observed", times = 4)))),
+                 cbind(exp1, data.frame(var = c(rep("Expected", times = 4)))))
+exp.obs2 <- rbind(cbind(obs.pred, data.frame(var = c(rep("Observed", times = 61)))),
+                  cbind(exp2, data.frame(var = c(rep("Expected", times = 61)))))
+
+ggplot(data = exp.obs1, aes(x = x, y = y, colour = var, shape = var)) +
+  geom_line(data = exp.obs2, aes(x = x, y = y, colour = var), size = 1) +
+  geom_point(size = 4) +
+  labs(x = "Degree of Persistence", y = expression(paste("Area (", km^2, ")"))) +
+  theme(axis.text.y=element_text(size=26), axis.text.x = element_text(size = 24), axis.title=element_text(size=28), 
+      legend.text = element_text(size=26), legend.position=c(0.8, 0.9), 
+      legend.background = element_rect(fill = "grey90"), legend.title=element_blank())
+
+# bar chart
+change <- data.frame(x = c(1:4), y = obs$y - exp1$y)
+
+ggplot(data = change, aes(x = x,  y = y, colour = factor(1), fill = factor(y))) +
+  geom_bar(stat = "identity") +
+  geom_hline(yintercept = 0, size = 1) +
+  ylim(-550, 150) +
+  scale_fill_manual(values=c("#8c510a", "#d8b365", "#f6e8c3", "#01665e")) +
+  scale_colour_manual(values= rep("black", 4)) +
+  labs(x = "Degree of persistence", y = expression(paste("Observed area - Expected area (", km^2, ")"))) +
+  guides(colour = F, fill = F)
+
+######
 
 
 ########## strat by cover
