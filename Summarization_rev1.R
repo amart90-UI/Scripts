@@ -158,62 +158,42 @@ ShapeSummary <- ShapeSummary[, -2]
 write.csv(ShapeSummary, file = "ShapeSummary.csv")
 
 # Compare Observed and Expected
-# Expected ui function (km2) Meddens et al., 2018
-ui.exp1 <- data.frame(x = c(1:4), y = 0.096^c(1:4) * (fire.area * 10^-6))
-ui.exp2 <- data.frame(x = seq(from = 1, to = 4, by = 0.05),
-                   y = (fire.area * 10^-6) * 0.096 ^ seq(from = 1, to = 4, by = 0.05))
-
-# observed ui function
-ui.obs <- data.frame(x = c(1:4), y = area.stats$total * 10^-6)
-mod1 <- lm(log(y) ~ x, data = ui.obs)
-ui.obs.pred <- data.frame(x = seq(from = 1, to = 4, by = 0.05), 
-                       y = exp(predict(mod1, newdata = data.frame(x = seq(from = 1, to = 4, by = 0.05)))))
-summary(mod1)
-#
-ui.exp.obs1 <- rbind(cbind(ui.obs, data.frame(var = c(rep("Observed", times = 4)))),
-                 cbind(ui.exp1, data.frame(var = c(rep("Expected", times = 4)))))
-ui.exp.obs2 <- rbind(cbind(ui.obs.pred, data.frame(var = c(rep("Observed", times = 61)))),
-                  cbind(ui.exp2, data.frame(var = c(rep("Expected", times = 61)))))
-
-ggplot(data = ui.exp.obs1, aes(x = x, y = y, colour = var, shape = var)) +
-  geom_line(data = ui.exp.obs2, aes(x = x, y = y, colour = var), size = 1) +
-  geom_point(size = 4) +
-  labs(x = "Degree of Persistence", y = expression(paste("Area (", km^2, ")"))) +
-  theme(axis.text.y=element_text(size=26), axis.text.x = element_text(size = 24), axis.title=element_text(size=28), 
-      legend.text = element_text(size=26), legend.position=c(0.8, 0.9), 
-      legend.background = element_rect(fill = "grey90"), legend.title=element_blank())
-
-# bar chart
-ui.change <- data.frame(x = c(1:4), y = ui.obs$y - ui.exp1$y)
-
-ggplot(data = ui.change, aes(x = x,  y = y, colour = factor(1), fill = factor(y))) +
-  geom_bar(stat = "identity") +
-  geom_hline(yintercept = 0, size = 1) +
-  ylim(-590, 150) +
-  annotate("text", x = 1:4, y = c(90, -570, -100, -40), label = round(obs$y - ui.exp1$y, 1), size = 24 / 2.5) +
-  scale_fill_manual(values=c("#8c510a", "#d8b365", "#f6e8c3", "#01665e")) +
-  scale_colour_manual(values= rep("black", 4)) +
-  labs(x = "Degree of persistence", y = expression(paste("Observed area - Expected area ( ", km^2, ")"))) +
-  guides(colour = F, fill = F) +
-  theme(axis.text.y=element_text(size=26), axis.text.x = element_text(size = 24), axis.title=element_text(size=28))
-
 # Expected reburn (km2) Stevens-Rumann et al., 2016
-fire.exp1 <- data.frame(x = c(1:7), y = 0.03^c(1:7) * (fire.area * 10^-6))
+fire.exp1 <- data.frame(x = c(1:7), y = 0.03^c(0:6) * (fire.area * 10^-6))
 fire.exp2 <- data.frame(x = seq(from = 1, to = 7, by = 0.1),
-                   y = (fire.area * 10^-6) * 0.03 ^ (seq(from = 1, to = 7, by = 0.1)-1))
-
+                        y = (fire.area * 10^-6) * 0.03 ^ seq(from = 0, to = 6, by = 0.1))
 
 # observed fire function
 fire.obs <- data.frame(x = fire.table$OVERLAP, y = rev(cumsum(rev(fire.table$SUM_AREA * 10^-6))))
 mod2 <- lm(log(y) ~ x, data = fire.obs)
 fire.obs.pred <- data.frame(x = seq(from = 1, to = 7, by = 0.1), 
-                          y = exp(predict(mod2, newdata = data.frame(x = seq(from = 1, to = 7, by = 0.1)))))
+                            y = exp(predict(mod2, newdata = data.frame(x = seq(from = 1, to = 7, by = 0.1)))))
 
+# Expected ui function (km2) Meddens et al., 2018
+ui.exp1 <- data.frame(x = c(1:4), y = 0.096^c(1:4) * (fire.area * 10^-6))
+ui.exp2 <- data.frame(x = seq(from = 1, to = 4, by = 0.05),
+                      y = (fire.area * 10^-6) * 0.096 ^ seq(from = 1, to = 4, by = 0.05))
+
+# observed ui function
+ui.obs <- data.frame(x = c(1:4), y = area.stats$total * 10^-6)
+mod1 <- lm(log(y) ~ x, data = ui.obs)
+ui.obs.pred <- data.frame(x = seq(from = 1, to = 4, by = 0.05), 
+                          y = exp(predict(mod1, newdata = data.frame(x = seq(from = 1, to = 4, by = 0.05)))))
+
+# Combine expected and observed 
 fire.exp.obs1 <- rbind(cbind(fire.obs, data.frame(var = c(rep("Observed", times = 7)))),
-                     cbind(fire.exp1, data.frame(var = c(rep("Expected", times = 7)))))
+                       cbind(fire.exp1, data.frame(var = c(rep("Expected", times = 7)))))
 fire.exp.obs2 <- rbind(cbind(fire.obs.pred, data.frame(var = c(rep("Observed", times = 61)))),
-                     cbind(fire.exp2, data.frame(var = c(rep("Expected", times = 61)))))
+                       cbind(fire.exp2, data.frame(var = c(rep("Expected", times = 61)))))
+ui.exp.obs1 <- rbind(cbind(ui.obs, data.frame(var = c(rep("Observed", times = 4)))),
+                     cbind(ui.exp1, data.frame(var = c(rep("Expected", times = 4)))))
+ui.exp.obs2 <- rbind(cbind(ui.obs.pred, data.frame(var = c(rep("Observed", times = 61)))),
+                     cbind(ui.exp2, data.frame(var = c(rep("Expected", times = 61)))))
 
+fire.change <- data.frame(x = c(1:7), y = fire.obs$y - fire.exp1$y)
+ui.change <- data.frame(x = c(1:4), y = ui.obs$y - ui.exp1$y)
+
+# Plot charts
 ggplot(data = fire.exp.obs1, aes(x = x, y = y, colour = var, shape = var)) +
   geom_line(data = fire.exp.obs2, aes(x = x, y = y, colour = var), size = 1) +
   geom_point(size = 4) +
@@ -221,8 +201,6 @@ ggplot(data = fire.exp.obs1, aes(x = x, y = y, colour = var, shape = var)) +
   theme(axis.text.y=element_text(size=26), axis.text.x = element_text(size = 24), axis.title=element_text(size=28), 
         legend.text = element_text(size=26), legend.position=c(0.8, 0.9), 
         legend.background = element_rect(fill = "grey90"), legend.title=element_blank())
-
-fire.change <- data.frame(x = c(1:7), y = fire.obs$y - fire.exp1$y)
 
 ggplot(data = fire.change, aes(x = x,  y = y, colour = factor(1), fill = factor(y))) +
   geom_bar(stat = "identity") +
@@ -235,60 +213,22 @@ ggplot(data = fire.change, aes(x = x,  y = y, colour = factor(1), fill = factor(
   guides(colour = F, fill = F) +
   theme(axis.text.y=element_text(size=26), axis.text.x = element_text(size = 24), axis.title=element_text(size=28))
 
-######
+ggplot(data = ui.exp.obs1, aes(x = x, y = y, colour = var, shape = var)) +
+  geom_line(data = ui.exp.obs2, aes(x = x, y = y, colour = var), size = 1) +
+  geom_point(size = 4) +
+  labs(x = "Degree of Persistence", y = expression(paste("Area (", km^2, ")"))) +
+  theme(axis.text.y=element_text(size=26), axis.text.x = element_text(size = 24), axis.title=element_text(size=28), 
+        legend.text = element_text(size=26), legend.position=c(0.8, 0.9), 
+        legend.background = element_rect(fill = "grey90"), legend.title=element_blank())
 
-plot()
-########## strat by cover
-area.stats.f <- ddply(Forest, "overlap", summarise,
-                    total = sum(AREA), 
-                    prop.persist = sum(AREA), 
-                    min = min(AREA), 
-                    max = max(AREA),
-                    mean = mean(AREA), 
-                    area.median = median(AREA), 
-                    sd = sd(AREA), 
-                    se = sd(AREA)/sqrt(length(AREA)))
-area.stats.f$prop.persist <- c(0, area.stats.f$prop.persist[-1] / sum(area.stats.f$total[-1]))
-area.stats.f$Cvr <- rep(1, times = 4)
+ggplot(data = ui.change, aes(x = x,  y = y, colour = factor(1), fill = factor(y))) +
+  geom_bar(stat = "identity") +
+  geom_hline(yintercept = 0, size = 1) +
+  ylim(-590, 150) +
+  annotate("text", x = 1:4, y = c(90, -570, -100, -40), label = round(ui.change$y, 1), size = 24 / 2.5) +
+  scale_fill_manual(values=c("#8c510a", "#d8b365", "#f6e8c3", "#01665e")) +
+  scale_colour_manual(values= rep("black", 4)) +
+  labs(x = "Degree of persistence", y = expression(paste("Observed area - Expected area ( ", km^2, ")"))) +
+  guides(colour = F, fill = F) +
+  theme(axis.text.y=element_text(size=26), axis.text.x = element_text(size = 24), axis.title=element_text(size=28))
 
-area.stats.r <- ddply(Range, "overlap", summarise,
-                      total = sum(AREA), 
-                      prop.persist = sum(AREA), 
-                      min = min(AREA), 
-                      max = max(AREA),
-                      mean = mean(AREA), 
-                      area.median = median(AREA), 
-                      sd = sd(AREA), 
-                      se = sd(AREA)/sqrt(length(AREA)))
-area.stats.r$prop.persist <- c(0, area.stats.r$prop.persist[-1] / sum(area.stats.r$total[-1]))
-area.stats.r$Cvr <- rep(2, times = 4)
-
-# Proportions
-prop.stats.f <- ddply(Forest, "overlap", summarise,
-                    area.fire = sum(AREA) / fire.area,
-                    area.unburned = sum(AREA) / sum(Forest$AREA),
-                    area.persist = sum(AREA))
-prop.stats.f$area.persist <- c(0, prop.stats.f$area.persist[-1] / sum(area.stats.f$total[-1]))
-
-prop.stats.r <- ddply(Range, "overlap", summarise,
-                      area.fire = sum(AREA) / fire.area,
-                      area.unburned = sum(AREA) / sum(Range$AREA),
-                      area.persist = sum(AREA))
-prop.stats.r$area.persist <- c(0, prop.stats.f$area.persist[-1] / sum(area.stats.f$total[-1]))
-
-
-
-
-area.prop <- data.frame(overlap = c("Burned", 1,2,3,4,1,2,3,4,2,3,4),
-                        values = c(1-sum(prop.stats$area.fire), prop.stats[,5], prop.stats[,6], prop.stats[-1,7]),
-                        group = factor(c(rep("Within fire perimeters", times = 5), rep("Among unburned islands", times = 4), 
-                                         rep("Among persistant unburned islands", times = 3))))
-area.prop$overlap <- factor(as.character(c("Burned", 1,2,3,4,1,2,3,4,2,3,4)), levels = c("Burned", 1,2,3,4))
-area.prop$group <- factor(area.prop$group, levels = rev(levels(area.prop$group)))
-area.prop$values <- 100 *area.prop$values
-
-ggplot(aes(y = values, x = group, fill = overlap), data = area.prop) +
-  geom_bar(position = position_fill(reverse = T), stat="identity") +
-  labs(title = "Distribution of persistent unburned islands (area) by degree of persistence", x = "", y = "Proportion of area") +
-  guides(fill=guide_legend(title="Degree of\npersistence"))
-####
