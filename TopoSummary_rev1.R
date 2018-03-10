@@ -38,76 +38,91 @@ ddply(sampl.data, c("Cvr"), summarise, sd = sd(TPI_90))
 # Faceted kernel density estimation plots
 col <- c("#D55E00", "cyan3")
 
-ggplot(sampl.data, aes(x=TPI_90, colour=Unburned)) + 
+p_TPI_90 <- ggplot(sampl.data, aes(x=TPI_90, colour=Unburned)) + 
   geom_density(size = 1) +
   geom_hline(yintercept=0, colour="white", size=1) +
-  geom_vline(data = med, aes(xintercept = TPI90.med, colour=Unburned, linetype = Unburned), size = 1, show.legend = F) +
-  annotate("text", y = 0.3, x = -20, label = paste(sprintf('\u2190'), "Valley"), size = 22/2.5) +
-  annotate("text", y = 0.3, x = 0, label = "Flat", size = 22/2.5) +
-  annotate("text", y = 0.3, x = 20, label = paste("Ridge", sprintf('\u2192')), size = 22/2.5) +
+  geom_vline(data = med, aes(xintercept = TPI90.med, colour=Unburned, linetype = Unburned), size = .5, show.legend = F) +
+  annotate("text", y = 0.3, x = -20, label = paste("\n", sprintf('\u2190'), "Valley"), size = 10/2.5) +
+  annotate("text", y = 0.3, x = 0, label = "Flat", size = 10/2.5) +
+  annotate("text", y = 0.3, x = 20, label = paste("\nRidge", sprintf('\u2192')), size = 10/2.5) +
   facet_wrap(~Cvr)+
   labs(title = "", x = "Topographic Posistion Index", y = "Density function (# of pixels)") +
   scale_linetype_manual(values = c("dashed", "longdash"))+
   scale_color_manual("", labels = c("Burned   ", "Persistent Unburned"), values = col) +
   coord_cartesian(xlim = c(-30, 30)) +
-  theme(axis.text.y=element_text(size=26), axis.text.x = element_text(size = 24), axis.title=element_text(size=28), 
-        legend.text = element_text(size=26),legend.title=element_text(size=28), 
-        strip.text.x = element_text(size = 26), legend.position="top")
+  theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10), axis.title=element_text(size=12), 
+        legend.text = element_text(size=10),legend.title=element_text(size=12), 
+        strip.text.x = element_text(size = 12), legend.position="top", plot.margin = margin(t= 0, l = 1, r = 1, unit = "mm"),
+        legend.margin = margin(t= -4, l = 5, b = -2, unit = "mm"))
+ggsave(plot = p_TPI_90, filename = "Topo_TPI90.png", path = "C:/Users/PyroGeo/Documents/UI-Drive/UI-Drive/Refugia/Persistence/Plots/",
+       width = 170, height = 70, units = "mm", dpi = 300)
 
-ggplot(sampl.data, aes(x=TRI_90, colour=Unburned)) + 
+p_TRI_90 <- ggplot(sampl.data, aes(x=TRI_90, colour=Unburned)) + 
   geom_density(size = 1) +
   geom_hline(yintercept=0, colour="white", size=1) +
-  geom_vline(data = med, aes(xintercept = TRI90.med, colour=Unburned, linetype = Unburned), size = 1, show.legend = F) +
-  annotate("text", y = 0.1135, x = 12, label = paste(sprintf('\u2190'), "Less rugged"), size = 22/2.5) +
-  annotate("text", y = 0.1135, x = 50, label = paste("More rugged", sprintf('\u2192')), size = 22/2.5) +
+  geom_vline(data = med, aes(xintercept = TRI90.med, colour=Unburned, linetype = Unburned), size = .5, show.legend = F) +
+  annotate("text", y = 0.1135, x = 18, label = paste(sprintf('\u2190'), "Less rugged"), size = 10/2.5) +
+  annotate("text", y = 0.1135, x = 48, label = paste("More rugged", sprintf('\u2192')), size = 10/2.5) +
   facet_wrap(~Cvr)+
   labs(title = "", x = "Terrain Ruggedness Index", y = "Density function (# of pixels)") +
   scale_linetype_manual(values = c("dashed", "longdash"))+
   scale_color_manual("", labels = c("Burned   ", "Persistent Unburned"), values = col) +
   coord_cartesian(xlim = c(0, 60)) +
-  theme(axis.text.y=element_text(size=26), axis.text.x = element_text(size = 24), axis.title=element_text(size=28), 
-        legend.text = element_text(size=26),legend.title=element_text(size=28), 
-        strip.text.x = element_text(size = 26), legend.position="top")
+  theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10), axis.title=element_text(size=12), 
+        legend.text = element_text(size=10),legend.title=element_text(size=12), 
+        strip.text.x = element_text(size = 12), legend.position="top",plot.margin = margin(t= 0, l = 1, r = 1, unit = "mm"),
+        legend.margin = margin(t= -4, l = 5, b = -2, unit = "mm"))
+ggsave(plot = p_TRI_90, filename = "Topo_TRI90.png", path = "C:/Users/PyroGeo/Documents/UI-Drive/UI-Drive/Refugia/Persistence/Plots/",
+       width = 170, height = 70, units = "mm", dpi = 300)
 
-ggplot(sampl.data, aes(x=slope, colour=Unburned)) + 
+p_slope_90 <- ggplot(sampl.data, aes(x=slope, colour=Unburned)) + 
   geom_density(size = 1) +
   geom_hline(yintercept=0, colour="white", size=1) +
-  geom_vline(data = med, aes(xintercept = slope.med, colour=Unburned, linetype = Unburned), size = 1, show.legend = F) +
+  geom_vline(data = med, aes(xintercept = slope.med, colour=Unburned, linetype = Unburned), size = .5, show.legend = F) +
   facet_wrap(~Cvr)+
   labs(title = "", x = "Slope (°)", y = "Density function (# of pixels)") +
   scale_linetype_manual(values = c("dashed", "longdash"))+
   scale_color_manual("", labels = c("Burned   ", "Persistent Unburned"), values = col) +
-  theme(axis.text.y=element_text(size=26), axis.text.x = element_text(size = 24), axis.title=element_text(size=28), 
-        legend.text = element_text(size=26),legend.title=element_text(size=28), 
-        strip.text.x = element_text(size = 26), legend.position="top")
+  theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10), axis.title=element_text(size=12), 
+        legend.text = element_text(size=10),legend.title=element_text(size=12), 
+        strip.text.x = element_text(size = 12), legend.position="top", plot.margin = margin(t= 0, l = 1, r = 1, unit = "mm"),
+        legend.margin = margin(t= -4, l = 5, b = -2, unit = "mm"))
+ggsave(filename = "Topo_slope.png", path = "C:/Users/PyroGeo/Documents/UI-Drive/UI-Drive/Refugia/Persistence/Plots/",
+       width = 170, height = 70, units = "mm", dpi = 300)
 
-ggplot(sampl.data, aes(x=TRASP, colour=Unburned)) + 
+p_TRASP_90 <- ggplot(sampl.data, aes(x=TRASP, colour=Unburned)) + 
   geom_density(size = 1) +
   geom_hline(yintercept=0, colour="white", size=1) +
   geom_vline(xintercept=c(0, 1), colour="white", size=1) +
-  geom_vline(data = med, aes(xintercept = TRASP.med, colour=Unburned, linetype = Unburned), size = 1, show.legend = F) +
-  annotate("text", y = 1.765, x = 0.125, label = paste(sprintf('\u2190'), "NNE"), size = 22/2.5) +
-  annotate("text", y = 1.765, x = 0.875, label = paste("SSW", sprintf('\u2192')), size = 22/2.5) +
+  geom_vline(data = med, aes(xintercept = TRASP.med, colour=Unburned, linetype = Unburned), size = .5, show.legend = F) +
+  annotate("text", y = 1.765, x = 0.25, label = paste(sprintf('\u2190'), "NNE"), size = 10/2.5) +
+  annotate("text", y = 1.765, x = 0.75, label = paste("SSW", sprintf('\u2192')), size = 10/2.5) +
   facet_wrap(~Cvr)+
   labs(title = "", x = "Transformed Aspect", y = "Density function (# of pixels)") +
   scale_linetype_manual(values = c("dashed", "longdash"))+
   scale_color_manual("", labels = c("Burned   ", "Persistent Unburned"), values = col) +
-  theme(axis.text.y=element_text(size=26), axis.text.x = element_text(size = 24), axis.title=element_text(size=28), 
-        legend.text = element_text(size=26),legend.title=element_text(size=28), 
-        strip.text.x = element_text(size = 26), legend.position="top")
+  theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10), axis.title=element_text(size=12), 
+        legend.text = element_text(size=10),legend.title=element_text(size=12), 
+        strip.text.x = element_text(size = 12), legend.position="top", plot.margin = margin(t= 0, l = 1, r = 1, unit = "mm"),
+        legend.margin = margin(t= -4, l = 5, b = -2, unit = "mm"))
+ggsave(filename = "Topo_TRASP.png", path = "C:/Users/PyroGeo/Documents/UI-Drive/UI-Drive/Refugia/Persistence/Plots/",
+       width = 170, height = 70, units = "mm", dpi = 300)
 
-ggplot(sampl.data, aes(x=SCOSA, colour=Unburned)) + 
+p_SCOSA_90 <- ggplot(sampl.data, aes(x=SCOSA, colour=Unburned)) + 
   geom_density(size = 1) +
   geom_hline(yintercept=0, colour="white", size=1) +
-  geom_vline(data = med, aes(xintercept = SCOSA.med, colour=Unburned, linetype = Unburned), size = 1, show.legend = F) +
+  geom_vline(data = med, aes(xintercept = SCOSA.med, colour=Unburned, linetype = Unburned), size = .5, show.legend = F) +
   facet_wrap(~Cvr)+
-  labs(title = "", x = "Topographic Posistion Index", y = "Density function (# of pixels)") +
+  labs(title = "", x = "SCOSA", y = "Density function (# of pixels)") +
   scale_linetype_manual(values = c("dashed", "longdash"))+
   scale_color_manual("", labels = c("Burned   ", "Persistent Unburned"), values = col) +
   coord_cartesian(xlim = c(-40, 40)) +
-  theme(axis.text.y=element_text(size=26), axis.text.x = element_text(size = 24), axis.title=element_text(size=28), 
-        legend.text = element_text(size=26),legend.title=element_text(size=28), 
-        strip.text.x = element_text(size = 26), legend.position="top")
+  theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10), axis.title=element_text(size=12), 
+        legend.text = element_text(size=10),legend.title=element_text(size=12), 
+        strip.text.x = element_text(size = 12), legend.position="top", plot.margin = margin(t= 0, l = 1, r = 1, unit = "mm"),
+        legend.margin = margin(t= -4, l = 5, b = -2, unit = "mm"))
+ggsave(plot = p_SCOSA_90, filename = "Topo_SCOSA.png", path = "C:/Users/PyroGeo/Documents/UI-Drive/UI-Drive/Refugia/Persistence/Plots/",
+       width = 170, height = 70, units = "mm", dpi = 300)
 
 # Build data frames
 TopoSummary <- data.frame(Variable = c("TPI_90", "", "TRI_90", "", "slope", "", "TRASP", "", "SCOSA", "", "n1 =", "n2 ="))
@@ -160,4 +175,80 @@ TopoSummary[,6] <- paste(TopoSummary[,2], TopoSummary[,6])
 TopoSummary <- TopoSummary[,-2]
 write.csv(TopoSummary, file = "TopoStatTable.csv")
 
+######
 
+p_TPI_90 <- ggplot(sampl.data, aes(x=TPI_90, colour=Unburned)) + 
+  geom_density(size = 1) +
+  geom_hline(yintercept=0, colour="white", size=1) +
+  geom_vline(data = med, aes(xintercept = TPI90.med, colour=Unburned, linetype = Unburned), size = .5, show.legend = F) +
+  annotate("text", y = 0.3, x = -20, label = paste("\n", sprintf('\u2190'), "Valley"), size = 10/2.5) +
+  annotate("text", y = 0.3, x = 0, label = "Flat", size = 10/2.5) +
+  annotate("text", y = 0.3, x = 20, label = paste("\nRidge", sprintf('\u2192')), size = 10/2.5) +
+  facet_wrap(~Cvr)+
+  labs(title = "", x = "Topographic Posistion Index", y = "Density function (# of pixels)") +
+  scale_linetype_manual(values = c("dashed", "longdash"))+
+  scale_color_manual("", labels = c("Burned   ", "Persistent Unburned"), values = col) +
+  coord_cartesian(xlim = c(-30, 30)) +
+  theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10), axis.title=element_text(size=12), 
+        legend.text = element_text(size=10),legend.title=element_text(size=12), 
+        strip.text.x = element_text(size = 12), legend.position="top", plot.margin = margin(t= 0, l = 10, r = 1, unit = "mm"),
+        legend.margin = margin(t= 0, l = 5, b = -2, unit = "mm"))
+
+p_TRI_90 <- ggplot(sampl.data, aes(x=TRI_90, colour=Unburned)) + 
+  geom_density(size = 1) +
+  geom_hline(yintercept=0, colour="white", size=1) +
+  geom_vline(data = med, aes(xintercept = TRI90.med, colour=Unburned, linetype = Unburned), size = .5, show.legend = F) +
+  annotate("text", y = 0.1135, x = 18, label = paste(sprintf('\u2190'), "Less rugged"), size = 10/2.5) +
+  annotate("text", y = 0.1135, x = 48, label = paste("More rugged", sprintf('\u2192')), size = 10/2.5) +
+  facet_wrap(~Cvr)+
+  labs(title = "", x = "Terrain Ruggedness Index", y = "Density function (# of pixels)") +
+  scale_linetype_manual(values = c("dashed", "longdash"))+
+  scale_color_manual("", labels = c("Burned   ", "Persistent Unburned"), values = col) +
+  coord_cartesian(xlim = c(0, 60)) +
+  theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10), axis.title=element_text(size=12), 
+        legend.text = element_text(size=10),legend.title=element_text(size=12), 
+        strip.text.x = element_text(size = 12), legend.position="top",plot.margin = margin(t= 0, l = 10, r = 1, unit = "mm"),
+        legend.margin = margin(t= -4, l = 5, b = -2, unit = "mm"))
+
+p_slope <- ggplot(sampl.data, aes(x=slope, colour=Unburned)) + 
+  geom_density(size = 1) +
+  geom_hline(yintercept=0, colour="white", size=1) +
+  geom_vline(data = med, aes(xintercept = slope.med, colour=Unburned, linetype = Unburned), size = .5, show.legend = F) +
+  facet_wrap(~Cvr)+
+  labs(title = "", x = "Slope (°)", y = "Density function (# of pixels)") +
+  scale_linetype_manual(values = c("dashed", "longdash"))+
+  scale_color_manual("", labels = c("Burned   ", "Persistent Unburned"), values = col) +
+  theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10), axis.title=element_text(size=12), 
+        legend.text = element_text(size=10),legend.title=element_text(size=12), 
+        strip.text.x = element_text(size = 12), legend.position="top", plot.margin = margin(t= 0, l = 10, r = 1, unit = "mm"),
+        legend.margin = margin(t= -4, l = 5, b = -2, unit = "mm"))
+
+p_TRASP <- ggplot(sampl.data, aes(x=TRASP, colour=Unburned)) + 
+  geom_density(size = 1) +
+  geom_hline(yintercept=0, colour="white", size=1) +
+  geom_vline(xintercept=c(0, 1), colour="white", size=1) +
+  geom_vline(data = med, aes(xintercept = TRASP.med, colour=Unburned, linetype = Unburned), size = .5, show.legend = F) +
+  annotate("text", y = 1.765, x = 0.25, label = paste(sprintf('\u2190'), "NNE"), size = 10/2.5) +
+  annotate("text", y = 1.765, x = 0.75, label = paste("SSW", sprintf('\u2192')), size = 10/2.5) +
+  facet_wrap(~Cvr)+
+  labs(title = "", x = "Transformed Aspect", y = "Density function (# of pixels)") +
+  scale_linetype_manual(values = c("dashed", "longdash"))+
+  scale_color_manual("", labels = c("Burned   ", "Persistent Unburned"), values = col) +
+  theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10), axis.title=element_text(size=12), 
+        legend.text = element_text(size=10),legend.title=element_text(size=12), 
+        strip.text.x = element_text(size = 12), legend.position="top", plot.margin = margin(t= 0, l = 10, r = 1, unit = "mm"),
+        legend.margin = margin(t= -4, l = 5, b = -4, unit = "mm"))
+
+p_Topo_L <- get_legend(p_TPI_90 + theme(legend.text = element_text(size=10),legend.title=element_text(size=12), legend.position="bottom",
+                            legend.margin = margin(t= -6, b = -6, l = 63, unit = "mm")))
+
+p <- plot_grid(p_TPI_90 + theme(legend.position="none", axis.title.y = element_blank()),
+               p_TRI_90 + theme(legend.position="none", axis.title.y = element_blank()),
+               p_slope + theme(legend.position="none", axis.title.y = element_blank()),
+               p_TRASP + theme(legend.position="none", axis.title.y = element_blank()),
+               p_Topo_L,
+               ncol = 1, nrow = 5, rel_heights = c(1,1,1,1,.2), labels = c("A", "B", "C", "D"), vjust = 3, hjust = -3.5)
+
+pp <- ggdraw(p) + annotate("text", y = .5, x = 0.013, label = "Density function (# of pixels)", angle = 90, size = 12/2.5)
+ggsave(plot = pp, filename = "Topo_combined.png", path = "C:/Users/PyroGeo/Documents/UI-Drive/UI-Drive/Refugia/Persistence/Plots/",
+       width = 170, height = 225, units = "mm", dpi = 300)

@@ -87,20 +87,23 @@ burn.1 <- fire.table$SUM_AREA[1] /sum(fire.table$SUM_AREA)
 burn.2 <- sum(fire.table$SUM_AREA[-1]) /sum(fire.table$SUM_AREA)
 area.prop <- data.frame(overlap = c(lvl, lvl[3:6],lvl[4:6], lvl[5:6]),
                         values = c(burn.1 * (1-sum(prop.stats$area.fire)), burn.2 * (1-sum(prop.stats$area.fire)), prop.stats[,5], prop.stats[,6], prop.stats[-1,7], prop.stats[3:4,8]),
-                        group = factor(c(rep("Within fire perimeters", times = 6), rep("Among unburned islands", times = 4), 
-                                         rep("Among persistant unburned", times = 3), "Among persistant (2+)", "Among persistant (2+)")))
-area.prop$group <- factor(area.prop$group, levels = rev(levels(area.prop$group)))
+                        group = factor(c(rep("Within fire\nperimeter", times = 6), rep("Among unburned\nislands", times = 4), 
+                                         rep("Among persistant\nunburned (2+ fires)", times = 3), rep("Among persistant\nunburned (3+ fires)", times = 2))))
+area.prop$group <- factor(area.prop$group, levels = levels(area.prop$group)[c(4, 3, 1, 2)])
 area.prop$values <- 100 * area.prop$values
 
 ggplot(aes(y = values, x = group, fill = overlap), data = area.prop) +
   geom_bar(position = position_fill(reverse = T), stat="identity") +
   labs(title = "", x = "", y = "Proportion of area") +
-  scale_fill_manual("Degree of persistence ", values = col) +
+  scale_fill_manual("Degree of\npersistence ", values = col) +
   guides(fill=guide_legend(nrow=2,byrow=F))+
   scale_y_continuous(labels = scales::percent)+
   scale_x_discrete(position = "bottom") +
-  theme(axis.ticks.x=element_blank(), axis.text.y=element_text(size=26), axis.title=element_text(size=28), axis.text.x = element_text(size = 24), 
-        legend.text = element_text(size=26),legend.title=element_text(size=28), legend.position="top")
+  theme(axis.ticks.x=element_blank(), axis.text.y=element_text(size=10), axis.title=element_text(size=12), axis.text.x = element_text(size = 10), 
+        legend.text = element_text(size=10),legend.title=element_text(size=12), legend.position="top", plot.margin = margin(t= -1, l = 1, r = 1, b= -4, unit = "mm"),
+        legend.margin = margin(t= -4, l = 5, b = -4, unit = "mm"))
+ggsave(filename = "Area_combined.png", path = "C:/Users/PyroGeo/Documents/UI-Drive/UI-Drive/Refugia/Persistence/Plots/",
+       width = 170, height = 70, units = "mm", dpi = 300)
 
 c(fire.table$SUM_AREA[1] / 10000, sum(fire.table$SUM_AREA[-1]) / 10000, area.stats$total / 10000)
 
@@ -205,13 +208,13 @@ ui.change <- data.frame(x = c(1:4), y = ui.obs$y - ui.exp1$y)
 
 # Plot charts
 ggplot(data = fire.obs, aes(x = x, y = y)) +
-  geom_bar(stat = "identity", fill = "#00BFC4", colour = "black") +
-  geom_line(data = fire.exp2, aes(x = x, y = y), size = 1, colour = "#F8766D") +
-  geom_point(data = fire.exp1, size = 2, colour = "#F8766D") +
+  geom_bar(stat = "identity", fill = "cyan3", colour = "black") +
+  geom_line(data = fire.exp2, aes(x = x, y = y), size = 1, colour = "#D55E00") +
+  geom_point(data = fire.exp1, size = 2, colour = "#D55E00") +
   labs(x = "Degree of reburn (number of fires)", y = expression(paste("Area (", km^2, ")"))) +
   scale_x_continuous(breaks = 1:7) +
   geom_tile(aes(x = 5, y = 13750), width = 2.2, height = 3000, colour = "black", fill = "white", size = .5) +
-  annotate("text", x = c(5,5), y = c(14500, 13000), label = c("Expected", "Observed"), size = 10 / 2.5, colour = c("#F8766D", "#00BFC4"), fontface = "bold") +
+  annotate("text", x = c(5,5), y = c(14500, 13000), label = c("Expected", "Observed"), size = 10 / 2.5, colour = c("#D55E00", "cyan3"), fontface = "bold") +
   theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10), axis.title=element_text(size=12),
         plot.margin = margin(l=0, r = 1.5, unit = "mm"))
 ggsave(filename = "ObsExp_Fire_Line.png", path = "C:/Users/PyroGeo/Documents/UI-Drive/UI-Drive/Refugia/Persistence/Plots/",
@@ -231,11 +234,11 @@ ggsave(filename = "ObsExp_Fire_Change.png", path = "C:/Users/PyroGeo/Documents/U
        width = 85, height = 70, units = "mm", dpi = 300)
 
 ggplot(data = ui.obs, aes(x = x, y = y)) +
-  geom_bar(stat = "identity", fill = "#00BFC4", colour = "black") +
-  geom_line(data = ui.exp2, aes(x = x, y = y), size = 1.2, colour = "#F8766D") +
-  geom_point(data = ui.exp1, size = 4, colour = "#F8766D") +
+  geom_bar(stat = "identity", fill = "cyan3", colour = "black") +
+  geom_line(data = ui.exp2, aes(x = x, y = y), size = 1.2, colour = "#D55E00") +
+  geom_point(data = ui.exp1, size = 4, colour = "#D55E00") +
   geom_tile(aes(x = 3.5, y = 7000), width = 1.45, height = 1450, colour = "black", fill = "white", size = .5) +
-  annotate("text", x = c(3.5,3.5), y = c(7350, 6650), label = c("Expected", "Observed"), size = 10 / 2.5, colour = c("#F8766D", "#00BFC4"), fontface = "bold") +
+  annotate("text", x = c(3.5,3.5), y = c(7350, 6650), label = c("Expected", "Observed"), size = 10 / 2.5, colour = c("#D55E00", "cyan3"), fontface = "bold") +
   labs(x = "Degree of Persistence\n(number of fires)", y = expression(paste("Area (", km^2, ")"))) +
   theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10), axis.title=element_text(size=12),
         plot.margin = margin(t= 1, l= -1, r= 1, b = 0, unit = "mm"))
@@ -266,7 +269,7 @@ p1 <- ggplot(ui.data, aes(x=AREA, colour = lvl)) +
   labs(colour = "Degree of\nPersistence ", x = expression(paste("Area (", m^2, ")")), y = "Density function (# of pixels)") +
   guides(colour = guide_legend(nrow=2,byrow=F)) +
   theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10), axis.title=element_text(size=12),
-        plot.margin = margin(b = 4, unit = "mm"))
+        plot.margin = margin(b = 2, l = 8, r = 1, unit = "mm"))
 
 p2 <- ggplot(ui.data, aes(x=FRAC, colour = lvl)) +
   geom_density(adjust = 3, size = .5) +
@@ -279,11 +282,21 @@ p2 <- ggplot(ui.data, aes(x=FRAC, colour = lvl)) +
   guides(colour = guide_legend(nrow=2,byrow=F)) +
   guides(colour = guide_legend(nrow=2,byrow=F)) +
   theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10), axis.title=element_text(size=12),
-        plot.margin = margin(t = 4, unit = "mm"))
+        plot.margin = margin(t = 2, l = 8, r = 1, unit = "mm"))
+
 pL <- get_legend(p1 + theme(legend.text = element_text(size=10),legend.title=element_text(size=12), legend.position="bottom",
                             legend.margin = margin(l = 20, unit = "mm")))
-p3 <- plot_grid(pL, p1 + theme(legend.position="none"), p2 + theme(legend.position="none"),
-                nrow = 3, rel_heights = c(1, 2.5,2.5), labels = c("", "A", "B"), vjust = 0, hjust = -4)
 
-ggsave(plot = p3, filename = "Shape_combined.png", path = "C:/Users/PyroGeo/Documents/UI-Drive/UI-Drive/Refugia/Persistence/Plots/",
+p3 <- plot_grid(p1 + theme(legend.position="none", axis.title.y = element_blank()),
+                p2 + theme(legend.position="none", axis.title.y = element_blank()),
+                pL,
+                nrow = 3, rel_heights = c(1,1,.4), labels = c("A", "B", ""), vjust = 0, hjust = -4)
+
+p4 <- ggdraw(p3) + annotate("text", y = .5, x = 0.018, label = "Density function (# of pixels)", angle = 90, size = 12/2.5)
+
+ggsave(plot = p4, filename = "Shape_combined2.png", path = "C:/Users/PyroGeo/Documents/UI-Drive/UI-Drive/Refugia/Persistence/Plots/",
+       width = 170, height = 130, units = "mm", dpi = 300)
+
+
+ggsave(plot = pL, filename = "pL.png", path = "C:/Users/PyroGeo/Documents/UI-Drive/UI-Drive/Refugia/Persistence/Plots/",
        width = 170, height = 130, units = "mm", dpi = 300)
