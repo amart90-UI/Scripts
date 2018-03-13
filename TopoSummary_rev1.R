@@ -125,8 +125,8 @@ ggsave(plot = p_SCOSA_90, filename = "Topo_SCOSA.png", path = "C:/Users/PyroGeo/
        width = 170, height = 70, units = "mm", dpi = 300)
 
 # Build data frames
-TopoSummary <- data.frame(Variable = c("TPI_90", "", "TRI_90", "", "slope", "", "TRASP", "", "SCOSA", "", "n1 =", "n2 ="))
-TopoSummary$text <- c(rep(c("D =", "p <"), length = 10), "", "")
+TopoSummary <- data.frame(Variable = c("TPI_90", "", "TRI_90", "", "slope", "", "cos.asp", "", "TRASP", "", "SCOSA", "", "n1 =", "n2 ="))
+TopoSummary$text <- c(rep(c("D =", "p <"), length = 12), "", "")
 
 # K-S Tests
 pub <- sampl.data[sampl.data[, "Unburned"] == 1,]
@@ -135,6 +135,7 @@ TopoSummary$`K-S.Burn.vs.PUB` <- c(
   ks.test(pub$TPI_90, burn$TPI_90)[c(1,2)],
   ks.test(pub$TRI_90, burn$TRI_90)[c(1,2)],
   ks.test(pub$slope, burn$slope)[c(1,2)],
+  ks.test(pub$cos.asp, burn$cos.asp)[c(1,2)],
   ks.test(pub$TRASP, burn$TRASP)[c(1,2)],
   ks.test(pub$SCOSA, burn$SCOSA)[c(1,2)],
   nrow(pub), nrow(burn))
@@ -145,6 +146,7 @@ TopoSummary$`K-S.Burn.vs.PUB.Forest` <- c(
   ks.test(pub.f$TPI_90, burn.f$TPI_90)[c(1,2)],
   ks.test(pub.f$TRI_90, burn.f$TRI_90)[c(1,2)],
   ks.test(pub.f$slope, burn.f$slope)[c(1,2)],
+  ks.test(pub.f$cos.asp, burn.f$cos.asp)[c(1,2)],
   ks.test(pub.f$TRASP, burn.f$TRASP)[c(1,2)],
   ks.test(pub.f$SCOSA, burn.f$SCOSA)[c(1,2)],
   nrow(pub.f), nrow(burn.f))
@@ -155,6 +157,7 @@ TopoSummary$`K-S.Burn.vs.PUB.Rangeland` <- c(
   ks.test(pub.r$TPI_90, burn.r$TPI_90)[c(1,2)],
   ks.test(pub.r$TRI_90, burn.r$TRI_90)[c(1,2)],
   ks.test(pub.r$slope, burn.r$slope)[c(1,2)],
+  ks.test(pub.r$cos.asp, burn.r$cos.asp)[c(1,2)],
   ks.test(pub.r$TRASP, burn.r$TRASP)[c(1,2)],
   ks.test(pub.r$SCOSA, burn.r$SCOSA)[c(1,2)],
   nrow(pub.r), nrow(burn.r))
@@ -163,11 +166,12 @@ TopoSummary$`K-S.Forest.vs.Rangeland` <- c(
   ks.test(Forest$TPI_90, Rangeland$TPI_90)[c(1,2)],
   ks.test(Forest$TRI_90, Rangeland$TRI_90)[c(1,2)],
   ks.test(Forest$slope, Rangeland$slope)[c(1,2)],
+  ks.test(Forest$cos.asp, Rangeland$cos.asp)[c(1,2)],
   ks.test(Forest$TRASP, Rangeland$TRASP)[c(1,2)],
   ks.test(Forest$SCOSA, Rangeland$SCOSA)[c(1,2)],
   nrow(Forest), nrow(Rangeland))
 
-TopoSummary[1:10,3:6] <- round(unlist(TopoSummary[1:10,3:6]), digits = 4)
+TopoSummary[1:12,3:6] <- round(unlist(TopoSummary[1:12,3:6]), digits = 4)
 TopoSummary[,3] <- paste(TopoSummary[,2], TopoSummary[,3])
 TopoSummary[,4] <- paste(TopoSummary[,2], TopoSummary[,4])
 TopoSummary[,5] <- paste(TopoSummary[,2], TopoSummary[,5])
