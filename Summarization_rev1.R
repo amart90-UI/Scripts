@@ -168,9 +168,10 @@ ShapeSummary[,3] <- paste(ShapeSummary[,2], ShapeSummary[,3])
 ShapeSummary[,4] <- paste(ShapeSummary[,2], ShapeSummary[,4])
 ShapeSummary <- ShapeSummary[, -2]
 write.csv(ShapeSummary, file = "ShapeSummary.csv")
-
+nrow(ui.2)
 # Compare Observed and Expected
 # Expected reburn (km2) Stevens-Rumann et al., 2016
+sum(fire.table$SUM_AREA[-1])/fire.area # = 0.1945461
 fire.exp1 <- data.frame(x = c(1:6), y = 0.1945461^c(1:6) * (fire.area * 10^-6))
 fire.exp2 <- data.frame(x = seq(from = 1, to = 6, by = 0.1),
                         y = (fire.area * 10^-6) * 0.1945461^seq(from = 1, to = 6, by = 0.1))
@@ -183,12 +184,13 @@ fire.obs.pred <- data.frame(x = seq(from = 1, to = 6, by = 0.1),
                             y = exp(predict(mod2, newdata = data.frame(x = seq(from = 1, to = 6, by = 0.1)))))
 
 # Expected ui function (km2) Meddens et al., 2018
-ui.exp1 <- data.frame(x = c(1:4), y = 0.09669098^c(1:4) * (fire.area * 10^-6))
+sum(area.stats$total) / fire.area  # = 0.09943283
+ui.exp1 <- data.frame(x = c(1:4), y = 0.09943283^c(1:4) * (fire.area * 10^-6))
 ui.exp2 <- data.frame(x = seq(from = 1, to = 4, by = 0.05),
-                      y = (fire.area * 10^-6) * 0.09669098^seq(from = 1, to = 4, by = 0.05))
+                      y = (fire.area * 10^-6) * 0.09943283^seq(from = 1, to = 4, by = 0.05))
 
 # observed ui function
-ui.obs <- data.frame(x = c(1:4), y = area.stats$total * 10^-6)
+ui.obs <- data.frame(x = c(1:4), y = rev(cumsum(rev(area.stats$total))) * 10^-6)
 mod1 <- lm(log(y) ~ x, data = ui.obs)
 ui.obs.pred <- data.frame(x = seq(from = 1, to = 4, by = 0.05), 
                           y = exp(predict(mod1, newdata = data.frame(x = seq(from = 1, to = 4, by = 0.05)))))
@@ -207,57 +209,117 @@ fire.change <- data.frame(x = c(1:6), y = fire.obs$y - fire.exp1$y)
 ui.change <- data.frame(x = c(1:4), y = ui.obs$y - ui.exp1$y)
 
 # Plot charts
-ggplot(data = fire.obs, aes(x = x, y = y)) +
+#ggplot(data = fire.obs, aes(x = x, y = y)) +
+#  geom_bar(stat = "identity", fill = "cyan3", colour = "black") +
+#  geom_line(data = fire.exp2, aes(x = x, y = y), size = 1, colour = "#D55E00") +
+#  geom_point(data = fire.exp1, size = 2, colour = "#D55E00") +
+#  labs(x = "Degree of reburn (number of fires)", y = expression(paste("Area (", km^2, ")"))) +
+#  scale_x_continuous(breaks = 1:7) +
+#  geom_tile(aes(x = 5, y = 13750), width = 2.2, height = 3000, colour = "black", fill = "white", size = .5) +
+#  annotate("text", x = c(5,5), y = c(14500, 13000), label = c("Expected", "Observed"), size = 10 / 2.5, colour = c("#D55E00", "cyan3"), fontface = "bold") +
+#  theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10), axis.title=element_text(size=12),
+#        plot.margin = margin(l=0, r = 1.5, unit = "mm"))
+#ggsave(filename = "ObsExp_Fire_Line.png", path = "C:/Users/PyroGeo/Documents/UI-Drive/UI-Drive/Refugia/Persistence/Plots/",
+#       width = 85, height = 70, units = "mm", dpi = 300)
+#
+#ggplot(data = fire.change, aes(x = x,  y = y, colour = factor(1), fill = factor(y))) +
+#  geom_bar(stat = "identity") +
+#  geom_hline(yintercept = 0, size = 1) +
+#  annotate("text", x = 1:6, y = fire.change$y + 30 , label = round(fire.change$y, 1), size = 10 / 2.5) +
+#  scale_fill_manual(values=c("#543005", "#f5f5f5","#c7eae5", "#80cdc1", "#35978f", "#01665e")) +
+#  scale_colour_manual(values= rep("black", 6)) +
+#  scale_x_continuous(breaks = 1:6) +
+#  labs(x = "Degree of reburn (number of fires)", y = expression(paste("Obs. area - Exp. area ( ", km^2, ")"))) +
+#  guides(colour = F, fill = F) +
+#  theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10), axis.title=element_text(size=12))
+#ggsave(filename = "ObsExp_Fire_Change.png", path = "C:/Users/PyroGeo/Documents/UI-Drive/UI-Drive/Refugia/Persistence/Plots/",
+#       width = 85, height = 70, units = "mm", dpi = 300)
+# % change paste0(round(100* abs(fire.obs$y - fire.exp1$y) / ((fire.obs$y + fire.exp1$y)/2),2), "%")
+#
+#ggplot(data = ui.obs, aes(x = x, y = y)) +
+#  geom_bar(stat = "identity", fill = "cyan3", colour = "black") +
+#  geom_line(data = ui.exp2, aes(x = x, y = y), size = 1.2, colour = "#D55E00") +
+#  geom_point(data = ui.exp1, size = 4, colour = "#D55E00") +
+#  geom_tile(aes(x = 3.5, y = 7000), width = 1.45, height = 1450, colour = "black", fill = "white", size = .5) +
+#  annotate("text", x = c(3.5,3.5), y = c(7350, 6650), label = c("Expected", "Observed"), size = 10 / 2.5, colour = c("#D55E00", "cyan3"), fontface = "bold") +
+#  labs(x = "Degree of Persistence\n(number of fires)", y = expression(paste("Area (", km^2, ")"))) +
+#  theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10), axis.title=element_text(size=12),
+#        plot.margin = margin(t= 1, l= -1, r= 1, b = 0, unit = "mm"))
+#ggsave(filename = "ObsExp_UI_Line.png", path = "C:/Users/PyroGeo/Documents/UI-Drive/UI-Drive/Refugia/Persistence/Plots/",
+#       width = 85, height = 70, units = "mm", dpi = 300)
+#
+#ggplot(data = ui.change, aes(x = x,  y = y, colour = factor(1), fill = factor(y))) +
+#  geom_bar(stat = "identity") +
+#  geom_hline(yintercept = 0, size = 1) +
+#  ylim(-590, 50) +
+#  annotate("text", x = 1:4, y = c(50, -560, -100, -40), label = round(ui.change$y, 1), size = 10 / 2.5) +
+#  scale_fill_manual(values=c("#8c510a", "#d8b365", "#f6e8c3", "#01665e")) +
+#  scale_colour_manual(values= rep("black", 4)) +
+#  labs(x = "Degree of persistence\n(number of fires)", y = expression(paste("Obs. area - Exp. area ( ", km^2, ")"))) +
+#  guides(colour = F, fill = F) +
+#  theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10), axis.title=element_text(size=12),
+#        plot.margin = margin(t= 1, l= -1, r= 1, b = 0, unit = "mm"))
+#ggsave(filename = "ObsExp_UI_Change.png", path = "C:/Users/PyroGeo/Documents/UI-Drive/UI-Drive/Refugia/Persistence/Plots/",
+#       width = 85, height = 70, units = "mm", dpi = 300)
+
+# Combined Exp. Obs graph
+c1 <- ggplot(data = fire.obs, aes(x = x, y = y)) +
   geom_bar(stat = "identity", fill = "cyan3", colour = "black") +
   geom_line(data = fire.exp2, aes(x = x, y = y), size = 1, colour = "#D55E00") +
   geom_point(data = fire.exp1, size = 2, colour = "#D55E00") +
-  labs(x = "Degree of reburn (number of fires)", y = expression(paste("Area (", km^2, ")"))) +
+  labs(x = " \n ", y = expression(paste("Area (", km^2, ")"))) +
   scale_x_continuous(breaks = 1:7) +
   geom_tile(aes(x = 5, y = 13750), width = 2.2, height = 3000, colour = "black", fill = "white", size = .5) +
   annotate("text", x = c(5,5), y = c(14500, 13000), label = c("Expected", "Observed"), size = 10 / 2.5, colour = c("#D55E00", "cyan3"), fontface = "bold") +
   theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10), axis.title=element_text(size=12),
-        plot.margin = margin(l=0, r = 1.5, unit = "mm"))
-ggsave(filename = "ObsExp_Fire_Line.png", path = "C:/Users/PyroGeo/Documents/UI-Drive/UI-Drive/Refugia/Persistence/Plots/",
-       width = 85, height = 70, units = "mm", dpi = 300)
+        plot.margin = margin(l=0, r = 2.5, b = 1, unit = "mm"))
 
-ggplot(data = fire.change, aes(x = x,  y = y, colour = factor(1), fill = factor(y))) +
+c2 <- ggplot(data = fire.change, aes(x = x,  y = y, colour = factor(1), fill = factor(y))) +
   geom_bar(stat = "identity") +
   geom_hline(yintercept = 0, size = 1) +
   annotate("text", x = 1:6, y = fire.change$y + 30 , label = round(fire.change$y, 1), size = 10 / 2.5) +
   scale_fill_manual(values=c("#543005", "#f5f5f5","#c7eae5", "#80cdc1", "#35978f", "#01665e")) +
   scale_colour_manual(values= rep("black", 6)) +
   scale_x_continuous(breaks = 1:6) +
-  labs(x = "Degree of reburn (number of fires)", y = expression(paste("Obs. area - Exp. area ( ", km^2, ")"))) +
+  labs(x = "Degree of reburn\n(number of fires reburned)", y = expression(paste("Obs. area - Exp. area ( ", km^2, ")"))) +
   guides(colour = F, fill = F) +
-  theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10), axis.title=element_text(size=12))
-ggsave(filename = "ObsExp_Fire_Change.png", path = "C:/Users/PyroGeo/Documents/UI-Drive/UI-Drive/Refugia/Persistence/Plots/",
-       width = 85, height = 70, units = "mm", dpi = 300)
+  theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10), axis.title=element_text(size=12),
+        plot.margin = margin(l=0, r = 1, t = 2, unit = "mm"))
+  # % change paste0(round(100* abs(fire.obs$y - fire.exp1$y) / ((fire.obs$y + fire.exp1$y)/2),2), "%")
 
-ggplot(data = ui.obs, aes(x = x, y = y)) +
+c3 <- ggplot(data = ui.obs, aes(x = x, y = y)) +
   geom_bar(stat = "identity", fill = "cyan3", colour = "black") +
   geom_line(data = ui.exp2, aes(x = x, y = y), size = 1.2, colour = "#D55E00") +
   geom_point(data = ui.exp1, size = 4, colour = "#D55E00") +
   geom_tile(aes(x = 3.5, y = 7000), width = 1.45, height = 1450, colour = "black", fill = "white", size = .5) +
   annotate("text", x = c(3.5,3.5), y = c(7350, 6650), label = c("Expected", "Observed"), size = 10 / 2.5, colour = c("#D55E00", "cyan3"), fontface = "bold") +
-  labs(x = "Degree of Persistence\n(number of fires)", y = expression(paste("Area (", km^2, ")"))) +
+  labs(x = " \n ", y = expression(paste("Area (", km^2, ")"))) +
   theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10), axis.title=element_text(size=12),
-        plot.margin = margin(t= 1, l= -1, r= 1, b = 0, unit = "mm"))
-ggsave(filename = "ObsExp_UI_Line.png", path = "C:/Users/PyroGeo/Documents/UI-Drive/UI-Drive/Refugia/Persistence/Plots/",
-       width = 85, height = 70, units = "mm", dpi = 300)
+        plot.margin = margin(t= 1, l= 0, r= 1, b = 1, unit = "mm"))
 
-ggplot(data = ui.change, aes(x = x,  y = y, colour = factor(1), fill = factor(y))) +
+
+c4 <- ggplot(data = ui.change, aes(x = x,  y = y, colour = factor(1), fill = factor(y))) +
   geom_bar(stat = "identity") +
   geom_hline(yintercept = 0, size = 1) +
   ylim(-590, 50) +
-  annotate("text", x = 1:4, y = c(50, -580, -100, -40), label = round(ui.change$y, 1), size = 10 / 2.5) +
+  annotate("text", x = 1:4, y = c(50, -560, -100, -40), label = round(ui.change$y, 1), size = 10 / 2.5) +
   scale_fill_manual(values=c("#8c510a", "#d8b365", "#f6e8c3", "#01665e")) +
   scale_colour_manual(values= rep("black", 4)) +
-  labs(x = "Degree of persistence\n(number of fires)", y = expression(paste("Obs. area - Exp. area ( ", km^2, ")"))) +
+  labs(x = "Degree of persistence\n(number of fires unburned)", y = expression(paste("Obs. area - Exp. area ( ", km^2, ")"))) +
   guides(colour = F, fill = F) +
   theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10), axis.title=element_text(size=12),
-        plot.margin = margin(t= 1, l= -1, r= 1, b = 0, unit = "mm"))
-ggsave(filename = "ObsExp_UI_Change.png", path = "C:/Users/PyroGeo/Documents/UI-Drive/UI-Drive/Refugia/Persistence/Plots/",
-       width = 85, height = 70, units = "mm", dpi = 300)
+        plot.margin = margin(t= 2, l= 0, r= 1, b = 0, unit = "mm"))
+
+
+c5 <- plot_grid(c1,
+                c3,
+                c2,
+                c4,
+                ncol = 2, nrow = 2, rel_heights = c(1,1,1,1), labels = c("a", "c", "b", "d"), vjust = c(1.5, 1.5, 0, 0), hjust = c(-.5, -.5, 0, 0))
+
+ggsave(plot = c5, filename = "ObsExp_combined.png", path = "C:/Users/PyroGeo/Documents/UI-Drive/UI-Drive/Refugia/Persistence/Plots/",
+       width = 170, height = 140, units = "mm", dpi = 300)
+
 
 # Combined Shape plots
 p1 <- ggplot(ui.data, aes(x=AREA, colour = lvl)) +
@@ -269,7 +331,7 @@ p1 <- ggplot(ui.data, aes(x=AREA, colour = lvl)) +
   labs(colour = "Degree of\nPersistence ", x = expression(paste("Area (", m^2, ")")), y = "Density function (# of pixels)") +
   guides(colour = guide_legend(nrow=2,byrow=F)) +
   theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10), axis.title=element_text(size=12),
-        plot.margin = margin(b = 2, l = 8, r = 1, unit = "mm"))
+        plot.margin = margin(t = 4, b = -4, l = 10, r = 1, unit = "mm"))
 
 p2 <- ggplot(ui.data, aes(x=FRAC, colour = lvl)) +
   geom_density(adjust = 3, size = .5) +
@@ -282,7 +344,7 @@ p2 <- ggplot(ui.data, aes(x=FRAC, colour = lvl)) +
   guides(colour = guide_legend(nrow=2,byrow=F)) +
   guides(colour = guide_legend(nrow=2,byrow=F)) +
   theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10), axis.title=element_text(size=12),
-        plot.margin = margin(t = 2, l = 8, r = 1, unit = "mm"))
+        plot.margin = margin(t = 4, b = -4, l = 16, r = 1, unit = "mm"))
 
 pL <- get_legend(p1 + theme(legend.text = element_text(size=10),legend.title=element_text(size=12), legend.position="bottom",
                             legend.margin = margin(l = 20, unit = "mm")))
@@ -290,13 +352,13 @@ pL <- get_legend(p1 + theme(legend.text = element_text(size=10),legend.title=ele
 p3 <- plot_grid(p1 + theme(legend.position="none", axis.title.y = element_blank()),
                 p2 + theme(legend.position="none", axis.title.y = element_blank()),
                 pL,
-                nrow = 3, rel_heights = c(1,1,.4), labels = c("A", "B", ""), vjust = 0, hjust = -4)
+                ncol = 1, nrow = 3, rel_heights = c(1,1,.4), labels = c("a", "b", ""), vjust = 1.5, hjust = c(-6, -5.5, 0))
 
-p4 <- ggdraw(p3) + annotate("text", y = .5, x = 0.018, label = "Density function (# of pixels)", angle = 90, size = 12/2.5)
+p4 <- ggdraw(p3) + annotate("text", y = .5, x = 0.018, label = "Density function (% realtive frequency)", angle = 90, size = 12/2.5)
 
-ggsave(plot = p4, filename = "Shape_combined2.png", path = "C:/Users/PyroGeo/Documents/UI-Drive/UI-Drive/Refugia/Persistence/Plots/",
+ggsave(plot = p4, filename = "Shape_combined.png", path = "C:/Users/PyroGeo/Documents/UI-Drive/UI-Drive/Refugia/Persistence/Plots/",
        width = 170, height = 130, units = "mm", dpi = 300)
 
 
-ggsave(plot = pL, filename = "pL.png", path = "C:/Users/PyroGeo/Documents/UI-Drive/UI-Drive/Refugia/Persistence/Plots/",
-       width = 170, height = 130, units = "mm", dpi = 300)
+#ggsave(plot = pL, filename = "pL.png", path = "C:/Users/PyroGeo/Documents/UI-Drive/UI-Drive/Refugia/Persistence/Plots/",
+#       width = 170, height = 130, units = "mm", dpi = 300)

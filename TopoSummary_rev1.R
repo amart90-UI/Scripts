@@ -195,7 +195,7 @@ p_TPI_90 <- ggplot(sampl.data, aes(x=TPI_90, colour=Unburned)) +
   coord_cartesian(xlim = c(-30, 30)) +
   theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10), axis.title=element_text(size=12), 
         legend.text = element_text(size=10),legend.title=element_text(size=12), 
-        strip.text.x = element_text(size = 12), legend.position="top", plot.margin = margin(t= 0, l = 10, r = 1, unit = "mm"),
+        strip.text.x = element_text(size = 12), legend.position="top", plot.margin = margin(t= -6, l = 10, r = 1, unit = "mm"),
         legend.margin = margin(t= 0, l = 5, b = -2, unit = "mm"))
 
 p_TRI_90 <- ggplot(sampl.data, aes(x=TRI_90, colour=Unburned)) + 
@@ -211,7 +211,7 @@ p_TRI_90 <- ggplot(sampl.data, aes(x=TRI_90, colour=Unburned)) +
   coord_cartesian(xlim = c(0, 60)) +
   theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10), axis.title=element_text(size=12), 
         legend.text = element_text(size=10),legend.title=element_text(size=12), 
-        strip.text.x = element_text(size = 12), legend.position="top",plot.margin = margin(t= 0, l = 10, r = 1, unit = "mm"),
+        strip.text.x = element_text(size = 12), legend.position="top",plot.margin = margin(t= -6, l = 6, r = 1, unit = "mm"),
         legend.margin = margin(t= -4, l = 5, b = -2, unit = "mm"))
 
 p_slope <- ggplot(sampl.data, aes(x=slope, colour=Unburned)) + 
@@ -224,7 +224,7 @@ p_slope <- ggplot(sampl.data, aes(x=slope, colour=Unburned)) +
   scale_color_manual("", labels = c("Burned   ", "Persistent Unburned"), values = col) +
   theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10), axis.title=element_text(size=12), 
         legend.text = element_text(size=10),legend.title=element_text(size=12), 
-        strip.text.x = element_text(size = 12), legend.position="top", plot.margin = margin(t= 0, l = 10, r = 1, unit = "mm"),
+        strip.text.x = element_text(size = 12), legend.position="top", plot.margin = margin(t= -6, l = 7, r = 1, unit = "mm"),
         legend.margin = margin(t= -4, l = 5, b = -2, unit = "mm"))
 
 p_TRASP <- ggplot(sampl.data, aes(x=TRASP, colour=Unburned)) + 
@@ -240,7 +240,7 @@ p_TRASP <- ggplot(sampl.data, aes(x=TRASP, colour=Unburned)) +
   scale_color_manual("", labels = c("Burned   ", "Persistent Unburned"), values = col) +
   theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10), axis.title=element_text(size=12), 
         legend.text = element_text(size=10),legend.title=element_text(size=12), 
-        strip.text.x = element_text(size = 12), legend.position="top", plot.margin = margin(t= 0, l = 10, r = 1, unit = "mm"),
+        strip.text.x = element_text(size = 12), legend.position="top", plot.margin = margin(t= -6, l = 9, r = 1, unit = "mm"),
         legend.margin = margin(t= -4, l = 5, b = -4, unit = "mm"))
 
 p_Topo_L <- get_legend(p_TPI_90 + theme(legend.text = element_text(size=10),legend.title=element_text(size=12), legend.position="bottom",
@@ -250,9 +250,9 @@ p <- plot_grid(p_TPI_90 + theme(legend.position="none", axis.title.y = element_b
                p_TRI_90 + theme(legend.position="none", axis.title.y = element_blank()),
                p_slope + theme(legend.position="none", axis.title.y = element_blank()),
                p_TRASP + theme(legend.position="none", axis.title.y = element_blank()),
-               p_Topo_L,
-               ncol = 1, nrow = 5, rel_heights = c(1,1,1,1,.2), labels = c("A", "B", "C", "D"), vjust = 3, hjust = -3.5)
+               p_Topo_L, ncol = 1, nrow = 5, rel_heights = c(1,1,1,1,.2), 
+               labels = c("a", "b", "c", "d"), vjust = 1, hjust = c(-4.5, -3.8, -3.8, -3.8))
 
-pp <- ggdraw(p) + annotate("text", y = .5, x = 0.013, label = "Density function (# of pixels)", angle = 90, size = 12/2.5)
+pp <- ggdraw(p) + annotate("text", y = .5, x = 0.013, label = "Density function (% relative frequency)", angle = 90, size = 12/2.5)
 ggsave(plot = pp, filename = "Topo_combined.png", path = "C:/Users/PyroGeo/Documents/UI-Drive/UI-Drive/Refugia/Persistence/Plots/",
-       width = 170, height = 225, units = "mm", dpi = 300)
+       width = 170, height = 200, units = "mm", dpi = 300)
