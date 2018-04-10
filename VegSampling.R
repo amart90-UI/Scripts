@@ -1,34 +1,3 @@
-setwd("S:/COS/PyroGeog/amartinez/Persistance")
-library(raster)
-fbfm <- raster("Intermediates/FBFM_sample.tif")
-samp <- raster("Intermediates/SamplRas.tif")
-load("Intermediates/nonNA1.RData")
-input.stack <- stack(samp,fbfm)
-valuetable <- data.frame(input.stack[nonNa1])
-write.csv(valuetable, "vegvalue.csv")
-
-####
-a <- read.table("S:/COS/PyroGeog/amartinez/Persistance/Intermediates/vegval.TXT")
-dim(a)
-head(a)
-levels(a$V1)
-no.data <- a$V2[a$V1 == "-9999"]
-head(no.data)
-a[1:20,]
-b <- a[1:10,]
-b$V2[b$V2 == -9999] <- NA
-c <- na.exclude(b)
-d <- na.omit(b)
-
-####
-samp <- read.table("S:/COS/PyroGeog/amartinez/Persistance/Intermediates/sampval.TXT")
-veg <- read.table("S:/COS/PyroGeog/amartinez/Persistance/Intermediates/vegval.TXT")
-veg.samp <- cbind(samp, veg)
-rm(samp, veg)
-gc()
-veg.samp[,c(2,4)][veg.samp[,c(2,4)] == -9999] <- NA
-veg.samp.narm <- na.omit(veg.samp[1:20000000])
-####
 samp <- read.table("S:/COS/PyroGeog/amartinez/Persistance/Intermediates/sampval.TXT")
 samp <- samp[, 1]
 no.na <- which(samp != -9999)
@@ -53,3 +22,61 @@ table(samp3)
 sum(is.na(sampveg))
 a <- read.csv("S:/COS/PyroGeog/amartinez/Persistance/Intermediates/sampveg.csv")
 head(a)
+###########
+setwd("S:/COS/PyroGeog/amartinez/Persistance/Intermediates/VegSampling")
+samp0 <- read.table("samp_0.txt", fill = T)
+samp0 <- samp0[-c(1,2,3,4,5,6),]
+samp0[,1] <- as.numeric(samp0[,1])
+samp0 <- c(samp0[,1], samp0[,2])
+no.na0 <- which(samp0 != -9999)
+samp0 <- samp0[no.na0]
+
+veg0 <- read.table("veg_0.txt", fill = T)
+veg0 <- veg0[-c(1,2,3,4,5,6),]
+veg0[,1] <- as.numeric(veg0[,1])
+veg0 <- c(veg0[,1], veg0[,2])
+veg0 <- veg0[no.na0]
+
+vegsamp <- data.frame(UI = samp0, FBFM = veg0)
+
+write.csv("vegsamp0.csv")
+
+VegSample <- function(s){
+  assign(paste0("s", s), read.table("samp_", s, ".txt", fill = T))
+  assign(paste0("s", s), get(paste0("s", s))[-c(1,2,3,4,5,6),])
+  assign(paste0("s", s)[ ,1], as.numeric(get(paste0("s", s))[, 1]))
+  assign(paste0("s", s), c(get(paste0("s", s))[, 1], get(paste0("s", s))[, 2])
+  assign(paste0("no.na", s), which(get(paste0("s", s)) != -9999))
+  assign(paste0("s", s), get(paste0("s", s))[get(paste0("no.na", s))])
+  
+  assign(paste0("v", s), read.table("veg_", s, ".txt", fill = T))
+  assign(paste0("v", s), get(paste0("v", s))[-c(1,2,3,4,5,6),])
+  assign(paste0("v", s)[ ,1], as.numeric(get(paste0("v", s))[, 1]))
+  assign(paste0("v", s), c(get(paste0("v", s))[, 1], get(paste0("v", s))[, 2])
+  assign(paste0("v", s), get(paste0("v", s))[get(paste0("no.na", s))])
+  
+  veg0 <- veg0[no.na0]
+}
+
+
+####
+VegSample <- function(n){
+  samp <- read.table(paste0("samp_", n, ".txt"), fill = T)
+  samp <- samp[-c(1,2,3,4,5,6),]
+  samp[,1] <- as.numeric(samp[,1])
+  samp <- c(samp[,1], samp[,2])
+  no.na <- which(samp != -9999)
+  samp <- samp[no.na0]
+  veg <- read.table(paste0("veg_", n, ".txt"), fill = T)
+  veg <- veg[-c(1,2,3,4,5,6),]
+  veg[,1] <- as.numeric(veg[,1])
+  veg <- c(veg[,1], veg[,2])
+  veg <- veg[no.na]
+  vegsamp <- data.frame(UI = samp, FBFM = veg)
+  write.csv(vegsamp, paste0("vegsamp", n, ".csv"))
+}
+##
+VegSample(0)
+VegSample(1)
+VegSample(2)
+VegSample(3)
