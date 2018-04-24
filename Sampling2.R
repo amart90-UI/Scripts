@@ -5,7 +5,7 @@ Sample.s1 <- function(i, n){
   samp <- c(samp[,1], samp[,2])
   no.na <- which(samp != -9999)
   samp <- samp[no.na]
-  p <- read.table(paste0(substring("rastertoascii",1,10-nchar(i)), "_", tolower(i), "_", n, "1.txt"), fill = T)
+  p <- read.table(paste0("rastert_", tolower(i), "_", n, "1.txt"), fill = T)
   p <- p[-c(1,2,3,4,5,6),]
   p[,1] <- as.numeric(as.character(p[,1]))
   p <- c(p[,1], p[,2])
@@ -27,4 +27,9 @@ Sample <- function(i){
 
 Sample("TRI")
 Sample("TPI")
+Sample("TRASP")
+Sample("SWASP")
 
+Sample("slope")
+Sample("CosAsp")
+Sample("TWI")

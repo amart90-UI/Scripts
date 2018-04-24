@@ -169,6 +169,7 @@ ShapeSummary[,4] <- paste(ShapeSummary[,2], ShapeSummary[,4])
 ShapeSummary <- ShapeSummary[, -2]
 write.csv(ShapeSummary, file = "ShapeSummary.csv")
 nrow(ui.2)
+
 # Compare Observed and Expected
 # Expected reburn (km2) Stevens-Rumann et al., 2016
 sum(fire.table$SUM_AREA[-1])/fire.area # = 0.1945461
@@ -277,7 +278,7 @@ c1 <- ggplot(data = fire.obs, aes(x = x, y = y)) +
 c2 <- ggplot(data = fire.change, aes(x = x,  y = y, colour = factor(1), fill = factor(y))) +
   geom_bar(stat = "identity") +
   geom_hline(yintercept = 0, size = 1) +
-  annotate("text", x = 1:6, y = fire.change$y + 30 , label = round(fire.change$y, 1), size = 10 / 2.5) +
+  annotate("text", x = 1:6, y = fire.change$y + 30 , label = paste0(round((fire.obs$y-fire.exp1$y)/fire.exp1$y, 2)*100, "%"), size = 10 / 2.5) +
   scale_fill_manual(values=c("#543005", "#f5f5f5","#c7eae5", "#80cdc1", "#35978f", "#01665e")) +
   scale_colour_manual(values= rep("black", 6)) +
   scale_x_continuous(breaks = 1:6) +
@@ -290,7 +291,7 @@ c2 <- ggplot(data = fire.change, aes(x = x,  y = y, colour = factor(1), fill = f
 c3 <- ggplot(data = ui.obs, aes(x = x, y = y)) +
   geom_bar(stat = "identity", fill = "cyan3", colour = "black") +
   geom_line(data = ui.exp2, aes(x = x, y = y), size = 1.2, colour = "#D55E00") +
-  geom_point(data = ui.exp1, size = 4, colour = "#D55E00") +
+  geom_point(data = ui.exp1, size = 2, colour = "#D55E00") +
   geom_tile(aes(x = 3.5, y = 7000), width = 1.45, height = 1450, colour = "black", fill = "white", size = .5) +
   annotate("text", x = c(3.5,3.5), y = c(7350, 6650), label = c("Expected", "Observed"), size = 10 / 2.5, colour = c("#D55E00", "cyan3"), fontface = "bold") +
   labs(x = " \n ", y = expression(paste("Area (", km^2, ")"))) +
@@ -302,7 +303,7 @@ c4 <- ggplot(data = ui.change, aes(x = x,  y = y, colour = factor(1), fill = fac
   geom_bar(stat = "identity") +
   geom_hline(yintercept = 0, size = 1) +
   ylim(-590, 50) +
-  annotate("text", x = 1:4, y = c(50, -560, -100, -40), label = round(ui.change$y, 1), size = 10 / 2.5) +
+  annotate("text", x = 1:4, y = c(50, -560, -100, -40), label = paste0(round(-1*(ui.obs$y - ui.exp1$y)/ui.exp1$y, 2)*100, "%"), size = 10 / 2.5) +
   scale_fill_manual(values=c("#8c510a", "#d8b365", "#f6e8c3", "#01665e")) +
   scale_colour_manual(values= rep("black", 4)) +
   labs(x = "Degree of persistence\n(number of fires unburned)", y = expression(paste("Obs. area - Exp. area ( ", km^2, ")"))) +
@@ -328,33 +329,27 @@ p1 <- ggplot(ui.data, aes(x=AREA, colour = lvl)) +
   geom_vline(xintercept=0, colour="white", size=.5) +
   geom_hline(yintercept=0, colour="white", size=.5) +
   scale_x_continuous(breaks = seq(0, 10000, 2500), limits=c(0, 10000)) +
-  labs(colour = "Degree of\nPersistence ", x = expression(paste("Area (", m^2, ")")), y = "Density function (# of pixels)") +
+  labs(colour = "Degree of Persistence ", x = expression(paste("Area (", m^2, ")"))) +
   guides(colour = guide_legend(nrow=2,byrow=F)) +
-  theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10), axis.title=element_text(size=12),
-        plot.margin = margin(t = 4, b = -4, l = 10, r = 1, unit = "mm"))
+  theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10, margin = margin(t=1, b=-7)), axis.title=element_text(size=12), axis.title.y = element_blank(),
+        plot.margin = margin(t = 3, b = 0, l = 10, r = 1, unit = "mm"), legend.text = element_text(size=10),legend.title=element_text(size=12), legend.justification = c(1,1), legend.position = c(1,1), legend.box.background = element_rect(colour = "black"))
 
 p2 <- ggplot(ui.data, aes(x=FRAC, colour = lvl)) +
   geom_density(adjust = 3, size = .5) +
   geom_vline(data = med, aes(xintercept = FRAC.med, colour=lvl),  size = .5, linetype = c("dashed", "dashed", "dashed", "longdash"), show.legend = F) +
   geom_hline(yintercept=0, colour="white", size=.5) +
   coord_cartesian(xlim = c(1, 1.15))  +
-  labs(colour = "Degree of Persistence ", x = "Fractional dimension index", y = "Density function (# of pixels)\n") +
+  labs(x = "Fractional dimension index") +
   annotate("text", y = 33, x = 1.052, label = paste(sprintf('\u2190'), "More simple"), size = 10/2.5) +
   annotate("text", y = 33, x = 1.092, label = paste("More complex", sprintf('\u2192')), size = 10/2.5) +
-  guides(colour = guide_legend(nrow=2,byrow=F)) +
-  guides(colour = guide_legend(nrow=2,byrow=F)) +
-  theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10), axis.title=element_text(size=12),
-        plot.margin = margin(t = 4, b = -4, l = 16, r = 1, unit = "mm"))
+  theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10, margin = margin(t=1, b=-3)), axis.title=element_text(size=12),
+        plot.margin = margin(t = 3, b = 1, l = 16, r = 1, unit = "mm"), legend.position="none", axis.title.y = element_blank())
 
-pL <- get_legend(p1 + theme(legend.text = element_text(size=10),legend.title=element_text(size=12), legend.position="bottom",
-                            legend.margin = margin(l = 20, unit = "mm")))
+p3 <- plot_grid(p1, p2, ncol = 1, nrow = 2, rel_heights = c(1,1), labels = c("a", "b"), vjust = 1.8, hjust = c(-6, -5.5))
 
-p3 <- plot_grid(p1 + theme(legend.position="none", axis.title.y = element_blank()),
-                p2 + theme(legend.position="none", axis.title.y = element_blank()),
-                pL,
-                ncol = 1, nrow = 3, rel_heights = c(1,1,.4), labels = c("a", "b", ""), vjust = 1.5, hjust = c(-6, -5.5, 0))
-
-p4 <- ggdraw(p3) + annotate("text", y = .5, x = 0.018, label = "Density function (% realtive frequency)", angle = 90, size = 12/2.5)
+p4 <- ggdraw(p3) + 
+  annotate("text", y = .5, x = 0.018, label = "Density function (% realtive frequency)", angle = 90, size = 12/2.5) +
+  annotate("segment", x = 0.11, xend = 0.99, y = 0.49, yend = 0.49)
 
 ggsave(plot = p4, filename = "Shape_combined.png", path = "C:/Users/PyroGeo/Documents/UI-Drive/UI-Drive/Refugia/Persistence/Plots/",
        width = 170, height = 130, units = "mm", dpi = 300)
@@ -362,3 +357,4 @@ ggsave(plot = p4, filename = "Shape_combined.png", path = "C:/Users/PyroGeo/Docu
 
 #ggsave(plot = pL, filename = "pL.png", path = "C:/Users/PyroGeo/Documents/UI-Drive/UI-Drive/Refugia/Persistence/Plots/",
 #       width = 170, height = 130, units = "mm", dpi = 300)
+round((fire.obs$y-fire.exp1$y)/fire.exp1$y, 4)*100
