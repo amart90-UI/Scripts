@@ -167,8 +167,8 @@ ShapeSummary[,3:4] <- round(unlist(ShapeSummary[,3:4]), digits = 4)
 ShapeSummary[,3] <- paste(ShapeSummary[,2], ShapeSummary[,3])
 ShapeSummary[,4] <- paste(ShapeSummary[,2], ShapeSummary[,4])
 ShapeSummary <- ShapeSummary[, -2]
-write.csv(ShapeSummary, file = "ShapeSummary.csv")
-nrow(ui.2)
+write.csv(ShapeSummary, file = "ShapeSummary.csv", row.names =  F)
+
 
 # Compare Observed and Expected
 # Expected reburn (km2) Stevens-Rumann et al., 2016
@@ -279,10 +279,10 @@ c2 <- ggplot(data = fire.change, aes(x = x,  y = y, colour = factor(1), fill = f
   geom_bar(stat = "identity") +
   geom_hline(yintercept = 0, size = 1) +
   annotate("text", x = 1:6, y = fire.change$y + 30 , label = paste0(round((fire.obs$y-fire.exp1$y)/fire.exp1$y, 2)*100, "%"), size = 10 / 2.5) +
-  scale_fill_manual(values=c("#543005", "#f5f5f5","#c7eae5", "#80cdc1", "#35978f", "#01665e")) +
+  scale_fill_manual(values=c(rep("#0077D5",6))) +
   scale_colour_manual(values= rep("black", 6)) +
   scale_x_continuous(breaks = 1:6) +
-  labs(x = "Degree of reburn\n(number of fires reburned)", y = expression(paste("Obs. area - Exp. area ( ", km^2, ")"))) +
+  labs(x = "Degree of reburn\n(number of fires reburned)", y = "Obs. area - Exp. area") +
   guides(colour = F, fill = F) +
   theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10), axis.title=element_text(size=12),
         plot.margin = margin(l=0, r = 1, t = 2, unit = "mm"))
@@ -304,13 +304,13 @@ c4 <- ggplot(data = ui.change, aes(x = x,  y = y, colour = factor(1), fill = fac
   geom_hline(yintercept = 0, size = 1) +
   ylim(-590, 50) +
   annotate("text", x = 1:4, y = c(50, -560, -100, -40), label = paste0(round(-1*(ui.obs$y - ui.exp1$y)/ui.exp1$y, 2)*100, "%"), size = 10 / 2.5) +
-  scale_fill_manual(values=c("#8c510a", "#d8b365", "#f6e8c3", "#01665e")) +
+  scale_fill_manual(values=rep("#0077D5", 6)) +
   scale_colour_manual(values= rep("black", 4)) +
-  labs(x = "Degree of persistence\n(number of fires unburned)", y = expression(paste("Obs. area - Exp. area ( ", km^2, ")"))) +
+  labs(x = "Degree of persistence\n(number of fires unburned)", y = "Obs. area - Exp. area") +
   guides(colour = F, fill = F) +
   theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10), axis.title=element_text(size=12),
         plot.margin = margin(t= 2, l= 0, r= 1, b = 0, unit = "mm"))
-
+# expression(paste("Obs. area - Exp. area ( ", km^2, ")"))
 
 c5 <- plot_grid(c1,
                 c3,
@@ -332,7 +332,8 @@ p1 <- ggplot(ui.data, aes(x=AREA, colour = lvl)) +
   labs(colour = "Degree of Persistence ", x = expression(paste("Area (", m^2, ")"))) +
   guides(colour = guide_legend(nrow=2,byrow=F)) +
   theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10, margin = margin(t=1, b=-7)), axis.title=element_text(size=12), axis.title.y = element_blank(),
-        plot.margin = margin(t = 3, b = 0, l = 10, r = 1, unit = "mm"), legend.text = element_text(size=10),legend.title=element_text(size=12), legend.justification = c(1,1), legend.position = c(1,1), legend.box.background = element_rect(colour = "black"))
+        plot.margin = margin(t = 3, b = 0, l = 10, r = 1, unit = "mm"), legend.text = element_text(size=10),legend.title=element_text(size=12), legend.justification = c(1,1), 
+        legend.position = c(1,1), legend.box.background = element_rect(colour = "black"))
 
 p2 <- ggplot(ui.data, aes(x=FRAC, colour = lvl)) +
   geom_density(adjust = 3, size = .5) +
@@ -348,7 +349,7 @@ p2 <- ggplot(ui.data, aes(x=FRAC, colour = lvl)) +
 p3 <- plot_grid(p1, p2, ncol = 1, nrow = 2, rel_heights = c(1,1), labels = c("a", "b"), vjust = 1.8, hjust = c(-6, -5.5))
 
 p4 <- ggdraw(p3) + 
-  annotate("text", y = .5, x = 0.018, label = "Density function (% realtive frequency)", angle = 90, size = 12/2.5) +
+  annotate("text", y = .5, x = 0.018, label = "Density function (% relative frequency)", angle = 90, size = 12/2.5) +
   annotate("segment", x = 0.11, xend = 0.99, y = 0.49, yend = 0.49)
 
 ggsave(plot = p4, filename = "Shape_combined.png", path = "C:/Users/PyroGeo/Documents/UI-Drive/UI-Drive/Refugia/Persistence/Plots/",

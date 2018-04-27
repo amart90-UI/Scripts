@@ -24,26 +24,32 @@ vegsamp <- vegsamp[! vegsamp$FBFM %in% c(91, 93, 98, 99) , ]
 vegsamp <- vegsamp[! vegsamp$ForRan == "Other", ]
 vegsamp <- na.omit(vegsamp)
 veg <- ddply(vegsamp[, c("FBFM", "UI", "ForRan")], c("FBFM", "UI", "ForRan"), summarise, count = length(FBFM))
-veg$FBFM <- as.factor(veg$FBFM)
-
-#p_veg <- 
-  ggplot(veg, aes(x = FBFM, y = count, fill = UI)) + 
+FBFM.names <- c("(1) Short grass", "(2) Timber and grass", "(3) Tall grass", "(4) Chaparral", "(5) Brush", "(6) Dominant brush", "(7) Southern rough", 
+                "(8) Closed, timber litter", "(9) Hardwood litter", "(10) Timber litter\nw/ understory", "(11) Light slash", "(12) Medium Slash", "(13) Heavy slash")
+FBFM.reclass <- data.frame(old = 1:13, new = as.factor(FBFM.names))
+veg$FBFM2 <- FBFM.reclass$new[match(unlist(veg$FBFM), FBFM.reclass$old)]
+veg$FBFM2 <- factor(veg$FBFM2, levels =  FBFM.names)
+veg <- na.omit(veg)
+col <- c("#d8b365", "cyan3")
+p_veg <- 
+  ggplot(veg, aes(x = FBFM2, y = count, fill = UI)) + 
   geom_bar(stat="identity", position = position_dodge()) +
   #facet_wrap(~ForRan)+
-  labs(x = "Fuel Type", y = "Frequency", colour = "Burn Status") +
-  theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10), axis.title=element_text(size=12), 
-        legend.text = element_text(size=10),legend.title=element_text(size=12),legend.position=c(.85,.8), 
-        plot.margin = margin(t= 2, l = .5, r = 1, b = 1, unit = "mm"))
+  labs(x = "Fuel Type", y = "Frequency (# of pixles)", colour = "Burn Status") +
+  scale_fill_manual(labels = c("Burned   ", "Persistent\nUnburned"), values = col) +
+  theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10, angle = 45, hjust = 1, vjust = 1, margin = margin(b = -8)), axis.title=element_text(size=12), 
+        legend.text = element_text(size=10),legend.title=element_blank(),legend.position=c(.81,.80), legend.box.background = element_rect(colour = "black"),
+        plot.margin = margin(t= 2, l = 0, r = 0.5, b = 0, unit = "mm"), axis.title.y = element_text(hjust = 1))
 
 ggsave(plot = p_veg, filename = "Veg_bars.png", path = "C:/Users/PyroGeo/Documents/UI-Drive/UI-Drive/Refugia/Persistence/Plots/",
        width = 170, height = 70, units = "mm", dpi = 300)
 
 
 
-tbl <- table(vegsamp$FBFM, vegsamp$UI)
+tbl <- table(vegsamp$FBFM[vegsamp$FBFM< 14], vegsamp$UI[vegsamp$FBFM< 14])
 chisq.test(tbl)
-n <- colSums(tbl)
-colSums(tbl)
+n <- sum(colSums(tbl))
+sum(tbl)
 ####
 
 table(vegsamp$ForRan, vegsamp$UI)
