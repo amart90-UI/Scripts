@@ -23,15 +23,17 @@ vegsamp$ForRan <- Reclass$new[match(unlist(vegsamp$ForRan), Reclass$old)]
 vegsamp <- vegsamp[! vegsamp$FBFM %in% c(91, 93, 98, 99) , ]
 vegsamp <- vegsamp[! vegsamp$ForRan == "Other", ]
 vegsamp <- na.omit(vegsamp)
+vegsamp <- vegsamp[vegsamp$FBFM < 14, ]
+vegsamp <- vegsamp[-sample((1:nrow(vegsamp))[vegsamp$UI == "Burned"], sum(vegsamp$UI == "Burned") - sum(vegsamp$UI == "Persistent Unburned"), replace = F),]
 veg <- ddply(vegsamp[, c("FBFM", "UI", "ForRan")], c("FBFM", "UI", "ForRan"), summarise, count = length(FBFM))
 FBFM.names <- c("(1) Short grass", "(2) Timber and grass", "(3) Tall grass", "(4) Chaparral", "(5) Brush", "(6) Dominant brush", "(7) Southern rough", 
                 "(8) Closed, timber litter", "(9) Hardwood litter", "(10) Timber litter\nw/ understory", "(11) Light slash", "(12) Medium Slash", "(13) Heavy slash")
 FBFM.reclass <- data.frame(old = 1:13, new = as.factor(FBFM.names))
 veg$FBFM2 <- FBFM.reclass$new[match(unlist(veg$FBFM), FBFM.reclass$old)]
 veg$FBFM2 <- factor(veg$FBFM2, levels =  FBFM.names)
-veg <- na.omit(veg)
+#veg <- na.omit(veg)
 col <- c("#d8b365", "cyan3")
-p_veg <- 
+#p_veg <- 
   ggplot(veg, aes(x = FBFM2, y = count, fill = UI)) + 
   geom_bar(stat="identity", position = position_dodge()) +
   #facet_wrap(~ForRan)+
@@ -44,12 +46,13 @@ p_veg <-
 ggsave(plot = p_veg, filename = "Veg_bars.png", path = "C:/Users/PyroGeo/Documents/UI-Drive/UI-Drive/Refugia/Persistence/Plots/",
        width = 170, height = 70, units = "mm", dpi = 300)
 
-
-
-tbl <- table(vegsamp$FBFM[vegsamp$FBFM< 14], vegsamp$UI[vegsamp$FBFM< 14])
+tbl <- table(vegsamp$FBFM, vegsamp$UI)
 chisq.test(tbl)
 n <- sum(colSums(tbl))
 sum(tbl)
 ####
-
-table(vegsamp$ForRan, vegsamp$UI)
+sum(vegsamp$UI == "Burned") - sum(vegsamp$UI == "Persistent Unburned")
+sample(vegsamp[,], 100)
+sample((1:nrow(vegsamp))[vegsamp$UI == "Burned"], sum(vegsamp$UI == "Burned") - sum(vegsamp$UI == "Persistent Unburned"), replace = F)
+v2 <- vegsamp[-sample((1:nrow(vegsamp))[vegsamp$UI == "Burned"], sum(vegsamp$UI == "Burned") - sum(vegsamp$UI == "Persistent Unburned"), replace = F),]
+table(vegsamp$UI)
