@@ -11,10 +11,10 @@ TWI$Unburned <- as.factor(TWI$Unburned)
 LookUp2 <- read.csv("S:/COS/PyroGeog/amartinez/Persistance/Intermediates/LandCover/GapAttrib.csv")
 Reclass2 <- data.frame(old = c(1,2,3,4,5,6,7,8,9,10,11,12), 
                       new.c = c(1,2,2,2,3,2,3,3,2,3,3,2),
-                      new = c("Forest","Range","Range","Range","Other","Range","Other","Other","Range","Other","Other","Range"))
+                      new = c("Forest","Rangeland","Rangeland","Rangeland","Other","Rangeland","Other","Other","Rangeland","Other","Other","Rangeland"))
 TWI$ForRan <- LookUp2$CL[match(unlist(TWI$GAP), LookUp2$Value)]
 TWI$ForRan <- Reclass2$new[match(unlist(TWI$ForRan), Reclass2$old)]
-TWI <- TWI[TWI$ForRan %in% c("Forest", "Range"),]
+TWI <- TWI[TWI$ForRan %in% c("Forest", "Rangeland"),]
 
 med2 <- ddply(na.omit(TWI), c("Unburned", "ForRan"), summarise, TWI.med = median(TWI))
 col <- c("#d8b365", "cyan3")

@@ -282,7 +282,7 @@ c2 <- ggplot(data = fire.change, aes(x = x,  y = y, colour = factor(1), fill = f
   scale_fill_manual(values=c(rep("#0077D5",6))) +
   scale_colour_manual(values= rep("black", 6)) +
   scale_x_continuous(breaks = 1:6) +
-  labs(x = "Degree of reburn\n(number of fires reburned)", y = "Obs. area - Exp. area") +
+  labs(x = "Degree of reburn\n(number of fires reburned)", y = expression(paste("Obs. area - Exp. area (", km^2, ")"))) +
   guides(colour = F, fill = F) +
   theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10), axis.title=element_text(size=12),
         plot.margin = margin(l=0, r = 1, t = 2, unit = "mm"))
@@ -306,7 +306,7 @@ c4 <- ggplot(data = ui.change, aes(x = x,  y = y, colour = factor(1), fill = fac
   annotate("text", x = 1:4, y = c(50, -560, -100, -40), label = paste0(round(-1*(ui.obs$y - ui.exp1$y)/ui.exp1$y, 2)*100, "%"), size = 10 / 2.5) +
   scale_fill_manual(values=rep("#0077D5", 6)) +
   scale_colour_manual(values= rep("black", 4)) +
-  labs(x = "Degree of persistence\n(number of fires unburned)", y = "Obs. area - Exp. area") +
+  labs(x = "Degree of persistence\n(number of fires unburned)", y = expression(paste("Obs. area - Exp. area (", km^2, ")"))) +
   guides(colour = F, fill = F) +
   theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10), axis.title=element_text(size=12),
         plot.margin = margin(t= 2, l= 0, r= 1, b = 0, unit = "mm"))

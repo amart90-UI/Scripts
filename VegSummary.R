@@ -31,28 +31,34 @@ FBFM.names <- c("(1) Short grass", "(2) Timber and grass", "(3) Tall grass", "(4
 FBFM.reclass <- data.frame(old = 1:13, new = as.factor(FBFM.names))
 veg$FBFM2 <- FBFM.reclass$new[match(unlist(veg$FBFM), FBFM.reclass$old)]
 veg$FBFM2 <- factor(veg$FBFM2, levels =  FBFM.names)
-#veg <- na.omit(veg)
 col <- c("#d8b365", "cyan3")
-#p_veg <- 
+rect1 <- data.frame(xmin = -Inf, xmax = 3.5, ymin = -Inf, ymax = Inf)
+rect2 <- data.frame(xmin = 3.5, xmax = 6.5, ymin = -Inf, ymax = Inf)
+rect3 <- data.frame(xmin = 6.5, xmax = 10.5, ymin = -Inf, ymax = Inf)
+rect4 <- data.frame(xmin = 10.5, xmax = Inf, ymin = -Inf, ymax = Inf)
+
+p_veg <- 
   ggplot(veg, aes(x = FBFM2, y = count, fill = UI)) + 
   geom_bar(stat="identity", position = position_dodge()) +
-  #facet_wrap(~ForRan)+
-  labs(x = "Fuel Type", y = "Frequency (# of pixles)", colour = "Burn Status") +
+  labs(x = " Fuel Type", y = "Frequency (# of pixles)", colour = "Burn Status") +
   scale_fill_manual(labels = c("Burned   ", "Persistent\nUnburned"), values = col) +
-  theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10, angle = 45, hjust = 1, vjust = 1, margin = margin(b = -8)), axis.title=element_text(size=12), 
-        legend.text = element_text(size=10),legend.title=element_blank(),legend.position=c(.81,.80), legend.box.background = element_rect(colour = "black"),
-        plot.margin = margin(t= 2, l = 0, r = 0.5, b = 0, unit = "mm"), axis.title.y = element_text(hjust = 1))
+  geom_rect(data = rect1, aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax), alpha = 0, color = "black", inherit.aes = F) +
+  geom_rect(data = rect2, aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax), alpha = 0, color = "black", inherit.aes = F) +
+  geom_rect(data = rect3, aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax), alpha = 0, color = "black", inherit.aes = F) +
+  geom_rect(data = rect4, aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax), alpha = 0, color = "black", inherit.aes = F) +
+  annotate("text", x = c(2, 5, 8.5, 12), y = 6300, label = c("Grass dominated", "Shrub dominated", "Timber litter", "Logging slash"), size = 10/2.5) +
+  coord_cartesian(ylim = c(0,6500)) +
+  theme_classic() +
+  theme(axis.text.y=element_text(size=10, colour = "black"), axis.text.x = element_text(size = 10, angle = 45, hjust = 1, vjust = 1, margin = margin(b = -8), colour = "black"), axis.title=element_text(size=12), 
+          legend.text = element_text(size=9),legend.title=element_blank(),legend.position=c(.9185,.55), legend.box.background = element_rect(colour = "black", size = 1),
+        plot.margin = margin(t= 2, l = 0, r = 0.5, b = 0, unit = "mm"), legend.margin = margin(t=-2, b=3, l = 2, r = 2), axis.title.y = element_text(hjust = 1))
 
 ggsave(plot = p_veg, filename = "Veg_bars.png", path = "C:/Users/PyroGeo/Documents/UI-Drive/UI-Drive/Refugia/Persistence/Plots/",
        width = 170, height = 70, units = "mm", dpi = 300)
 
 tbl <- table(vegsamp$FBFM, vegsamp$UI)
 chisq.test(tbl)
-n <- sum(colSums(tbl))
+n <- colSums(tbl)
 sum(tbl)
 ####
-sum(vegsamp$UI == "Burned") - sum(vegsamp$UI == "Persistent Unburned")
-sample(vegsamp[,], 100)
-sample((1:nrow(vegsamp))[vegsamp$UI == "Burned"], sum(vegsamp$UI == "Burned") - sum(vegsamp$UI == "Persistent Unburned"), replace = F)
-v2 <- vegsamp[-sample((1:nrow(vegsamp))[vegsamp$UI == "Burned"], sum(vegsamp$UI == "Burned") - sum(vegsamp$UI == "Persistent Unburned"), replace = F),]
-table(vegsamp$UI)
+#panel.background = element_rect(fill = 'white', colour = "black")
