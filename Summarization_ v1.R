@@ -89,15 +89,15 @@ p_TPI <- ggplot(plot.data, aes(x=TPI, colour=Unburned)) +
   geom_density(size = 1) +
   geom_hline(yintercept=0, colour="black", size=.8) +
   geom_vline(data = sample.med, aes(xintercept = TPI, colour=Unburned, linetype = Unburned), size = .5, show.legend = F) +
-  annotate("text", y = 0.3, x = -20, label = paste("\n", sprintf('\u2190'), "Valley"), size = 9/2.5) +
+  annotate("text", y = 0.3, x = -15, label = paste("\n", sprintf('\u2190'), "Valley"), size = 9/2.5) +
   annotate("text", y = 0.3, x = 0, label = "Flat", size = 9/2.5) +
-  annotate("text", y = 0.3, x = 20, label = paste("\nRidge", sprintf('\u2192')), size = 9/2.5) +
+  annotate("text", y = 0.3, x = 15, label = paste("\nRidge", sprintf('\u2192')), size = 9/2.5) +
   facet_wrap(~FRG, ncol = 1) +
   labs(title = "", x = "Topographic Posistion Index", y = "Density function (# of pixels)") +
-  geom_text(data = p.labs, mapping = aes(x =20, y = .1, label = TPI), inherit.aes = F) +
+  geom_text(data = p.labs, mapping = aes(x =15, y = .1, label = TPI), inherit.aes = F) +
   scale_linetype_manual(values = c("dashed", "longdash"))+
   scale_color_manual("", labels = c("Burned   \n", "Persistent\nUnburned"), values = col) +
-  coord_cartesian(xlim = c(-25, 25)) +
+  coord_cartesian(xlim = c(-20, 20)) +
   theme(axis.text.y=element_text(size=10), axis.text.x = element_text(size = 10, margin = margin(t=2, b=-4)), axis.title=element_text(size=12), 
         legend.text = element_text(size=10),legend.title=element_text(size=12), strip.text.x = element_text(size = 11, margin = margin(t=2, b=4)),
         legend.position="bottom", plot.margin = margin(t= -6, l = 0, r = 1, b=4, unit = "mm"), legend.margin = margin(t= -2, l = 15, b = -2, unit = "mm"))
@@ -179,30 +179,43 @@ ggsave(plot = p_TRASP, filename = "TRASP.png", path = "C:/Users/PyroGeo/Document
 
 
 ####
-ks2 <- function(df1, df2){
-  a <- unlist(c(ks.test(df1$TPI, df2$TPI)["p.value"],
-  ks.test(df1$TWI, df2$TWI)["p.value"],
-  ks.test(df1$TRI, df2$TRI)["p.value"],
-  ks.test(df1$Slope, df2$Slope)["p.value"],
-  ks.test(df1$CosAsp, df2$CosAsp)["p.value"],
-  ks.test(df1$TRASP, df2$TRASP)["p.value"],
-  ks.test(df1$SWASP, df2$SWASP)["p.value"],
-  ks.test(df1$SCOSA, df2$SCOSA)["p.value"]))
-  b <- ifelse(a > 0.0001, paste("p =", round(a, 4)), "p < 0.0001")
-  
-  return(b)
-}
-ks2(pers.1, burn.1)
-df1 <- pers.1
-df2 <- burn.1
-stat <- "statistic"
-
-View(t(data.frame(TopoSummary[2:9, c(1,5,7,9,11,13)], row.names = 1)))
-p.labs <- data.frame(FRG = paste("Fire Regime Group", c("I", "II", "III", "IV", "V")),
-                    t(data.frame(TopoSummary[2:9, c(1,5,7,9,11,13)], row.names = 1)), row.names = NULL)
-p.labs <- data.frame(t(data.frame(TopoSummary[2:9, c(1,5,7,9,11,13)], row.names = 1)), row.names = NULL)
-p.labs[] <- as.numeric(unlist(p.labs[]))
-class(p.labs$TPI)
+library(ClustOfVar)
+library(PCAmixdata)
+clust.data <- sample.comb
+sample.comb[,1] <- as.factor(sample.comb[,1])
+sample.comb[,2] <- as.factor(sample.comb[,2])
+sample.comb[,11] <- as.factor(sample.comb[,11])
 
 
 
+
+h.clust <- hclustvar(X.quanti = sample.comb[, c(3:10)], X.quali = sample.comb[, c(1,2,11)])
+plot(h.clust)
+h.cut <- cutreevar(h.clust, 3)
+stability(h.clust, B = 100)
+
+k.clust <- kmeansvar(X.quanti = clust.data[, c(3:10)], X.quali = clust.data[, c(1,2,11)], init =3)
+
+factanal(scale(as.matrix(sample.comb[, c(3:7)])), factors = 3)
+factanal(covmat = cov(scale(sample.comb[, c(3:10)])), n.obs = nrow(sample.comb), factors = 1)
+cov(scale(sample.comb[, c(3:10)]))
+nrow(sample.comb)
+
+k <- kmeans(scale(as.matrix(sample.comb[,3:8])), 3)
+plot(sample.comb$TPI, sample.comb)
+
+sample.scale <- scale(sample.comb[, c(3:10)])
+pairs(sample.comb)
+
+
+ch.k <- kmeans(ch, 4)
+col <- c(c("#FF0000FF", "#80FF00FF", "#00FFFFFF")[k$cluster], "black", "black", "black") 
+pairs(rbind(scale(sample.comb[,3:8]), k$centers), pch = 16, col = col)
+
+table(ch.k$cluster)
+plot(1:50, rep(c(.07,-.07), times = 25), pch = 16, cex = 3, ylim = c(-1,1), col = c("#FF0000FF", "#80FF00FF", "#00FFFFFF", "#8000FFFF")[ch.k$cluster])
+text(1:50, rep(c(.07,-.07), times = 25), col = "black")
+
+a <- ddply(cbind(sample.comb, k$cluster), "k$cluster", summarise, # calculate medians
+                    Landcover = Mode(Landcover), TPI = median(TPI), TWI = median(TWI), TRI = median(TRI), Slope = median(Slope),
+                    CosAsp = median(CosAsp), TRASP = median(TRASP), SWASP = median(SWASP), SCOSA = median(SCOSA))
